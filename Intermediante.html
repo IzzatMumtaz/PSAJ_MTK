@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Matematika PSAJ</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            font-family: Arial, sans-serif;
+            background-color: #f8f8f8;
+            transition: 0.2s;
+        }
+
+        .info {
+            text-align: left;
+            margin-bottom: 20px;
+            font-size: 18px;
+            color: #444;
+        }
+
+        .question {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 24px;
+        }
+
+        .box {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid #ccc;
+            font-size: 24px;
+            font-weight: bold;
+            background: white;
+        }
+
+        .answer-input {
+            width: 200px;
+            padding: 10px;
+            font-size: 18px;
+            text-align: center;
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            background: #f1f1f1;
+            transition: 0.3s;
+        }
+
+        .wrong {
+            border: 2px solid red;
+            background: #ffdddd;
+        }
+
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="info">
+        <p>Counts: <span id="count">01</span></p>
+        <p>Time Left: <span id="timer">01:00</span></p>
+    </div>
+
+    <div class="question">
+        <div class="box" id="num1">X</div>
+        <div id="operator1">+</div>
+        <div class="box" id="num2">X</div>
+        <div id="operator2">-</div>
+        <div class="box" id="num3">X</div>
+    </div>
+
+    <input type="number" class="answer-input" id="answer" placeholder="Ur answer" autofocus>
+
+    <div class="popup" id="popup">
+        <h2>Game Over!</h2>
+        <p>Total Soal: <span id="totalQuestions">0</span></p>
+        <p>Benar: <span id="correctAnswers">0</span></p>
+        <p>Salah: <span id="wrongAnswers">0</span></p>
+        <button onclick="restartGame()">Main Lagi</button>
+    </div>
+
+    <script>
+        let count = 1;
+        let correct = 0;
+        let wrong = 0;
+        let timeLeft = 60;
+        let interval;
+        let num1, num2, num3, operator1, operator2, correctAnswer;
+
+        function startGame() {
+            generateQuestion();
+            interval = setInterval(updateTimer, 1000);
+        }
+
+        function generateQuestion() {
+            num1 = Math.floor(Math.random() * 100) + 1;
+            num2 = Math.floor(Math.random() * 100) + 1;
+            num3 = Math.floor(Math.random() * 100) + 1;
+
+            let operators = ["+", "-"];
+            operator1 = operators[Math.floor(Math.random() * operators.length)];
+            operator2 = operators[Math.floor(Math.random() * operators.length)];
+
+            calculateCorrectAnswer();
+
+            document.getElementById("num1").innerText = num1;
+            document.getElementById("num2").innerText = num2;
+            document.getElementById("num3").innerText = num3;
+            document.getElementById("operator1").innerText = operator1;
+            document.getElementById("operator2").innerText = operator2;
+
+            document.getElementById("answer").value = "";
+            document.getElementById("answer").classList.remove("wrong");
+            document.getElementById("count").innerText = count < 10 ? "0" + count : count;
+        }
+
+        function calculateCorrectAnswer() {
+            if (operator1 === "+" && operator2 === "+") {
+                correctAnswer = num1 + num2 + num3;
+            } else if (operator1 === "+" && operator2 === "-") {
+                correctAnswer = num1 + num2 - num3;
+            } else if (operator1 === "-" && operator2 === "+") {
+                correctAnswer = num1 - num2 + num3;
+            } else {
+                correctAnswer = num1 - num2 - num3;
+            }
+        }
+
+        function checkAnswer() {
+            let userAnswer = parseInt(document.getElementById("answer").value);
+            if (!isNaN(userAnswer)) {
+                if (userAnswer === correctAnswer) {
+                    correct++;
+                } else {
+                    wrong++;
+                    showWrongEffect();
+                }
+                count++;
+                generateQuestion(); // Generate the next question regardless of correctness
+            }
+        }
+
+        function showWrongEffect() {
+            let body = document.body;
+            let input = document.getElementById("answer");
+            body.style.transform = "translateX(-5px)";
+            input.classList.add("wrong");
+            
+            setTimeout(() => {
+                body.style.transform = "translateX(0px)";
+                input.classList.remove("wrong"); // Remove the wrong class after the effect
+                document.getElementById("answer").value = ""; // Clear the input for the next attempt
+            }, 300);
+        }
+
+        function updateTimer() {
+            timeLeft--;
+            let minutes = Math.floor(timeLeft / 60);
+            let seconds = timeLeft % 60;
+            document.getElementById("timer").innerText = `0${minutes}:${seconds < 10 ? "0" + seconds : seconds}`;
+            
+            if (timeLeft <= 0) {
+                clearInterval(interval);
+                showPopup();
+            }
+        }
+
+        function showPopup() {
+            document.getElementById("totalQuestions").innerText = count - 1;
+            document.getElementById("correctAnswers").innerText = correct;
+            document.getElementById("wrongAnswers").innerText = wrong;
+            document.getElementById("popup").style.display = "block";
+        }
+
+        function restartGame() {
+            count = 1;
+            correct = 0;
+            wrong = 0;
+            timeLeft = 60;
+            document.getElementById("popup").style.display = "none";
+            document.getElementById("timer").innerText = "01:00";
+            startGame();
+        }
+
+        document.getElementById("answer").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                checkAnswer();
+            }
+        });
+
+        startGame();
+    </script>
+</body>
+</html>
