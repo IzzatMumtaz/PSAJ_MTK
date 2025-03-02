@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Matematika PSAJ</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: url('../img/movingBG.png') no-repeat center top;
+            background-size: cover;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            transition: background-position 0.5s ease-in-out;
+            overflow: hidden;
+        }
+        .container {
+            position: relative;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        h1 {
+            color: black;
+            margin-bottom: 20px;
+        }
+        .button {
+            margin: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            width: 350px;
+            height: auto;
+        }
+        .button:hover {
+            animation: shake 0.3s infinite;
+        }
+        @keyframes shake {
+            0% { transform: translate(0, 0); }
+            25% { transform: translate(-2px, 2px); }  /* Kiri Turun */
+            50% { transform: translate(2px, -2px); }  /* Kanan Naik */
+            75% { transform: translate(-2px, 2px); }  /* Kiri Turun */
+            100% { transform: translate(2px, -2px); } /* Kanan Naik */
+        }
+
+        
+        /* Cloud Container */
+        .cloud-container {
+            position: absolute;
+            width: 100%;
+            height: 1920px;
+            top: 0;
+            left: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: -1;
+        }
+        .cloud {
+            position: absolute;
+            width: auto;
+            height: 500px;
+            animation: moveClouds 20s infinite alternate ease-in-out;
+        }
+        .cloud-left {
+            left: -1000px;
+            animation: moveCloudsLeft 20s infinite alternate ease-in-out;
+            top: 300px;
+        }
+        .cloud-right {
+            right: -1000px;
+            animation: moveCloudsRight 20s infinite alternate ease-in-out;
+            top: 0px;
+
+        }
+        @keyframes moveCloudsLeft {
+            0% { left: -1000px; }
+            100% { left: 1500px; }
+        }
+        @keyframes moveCloudsRight {
+            0% { right: -1000px; }
+            100% { right: 1500px; }
+        }
+    </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const beginner = document.querySelector("img[alt='Beginner']");
+            const intermediate = document.querySelector("img[alt='Intermediate']");
+            const expert = document.querySelector("img[alt='Expert']");
+            const cloudContainer = document.querySelector(".cloud-container");
+            const cloudLeft = document.querySelector(".cloud-left");
+            const cloudRight = document.querySelector(".cloud-right");
+
+            beginner.addEventListener("mouseenter", function() {
+                document.body.style.backgroundPosition = "center top";
+                cloudLeft.src = "../img/cloud.png";
+                cloudRight.src = "../img/cloud.png";
+                cloudContainer.style.display = "flex"; 
+            });
+
+            intermediate.addEventListener("mouseenter", function() {
+                document.body.style.backgroundPosition = "center 50%";
+                cloudLeft.src = "../img/awanGelap.png";
+                cloudRight.src = "../img/awanGelap.png";
+                cloudContainer.style.display = "flex";  
+            });
+
+            expert.addEventListener("mouseenter", function() {
+                document.body.style.backgroundPosition = "center 100%";
+                cloudLeft.src = "../img/kunang2.png";
+                cloudRight.src = "../img/kunang2.png";
+                cloudContainer.style.display = "flex";  
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="cloud-container">
+        <img src="../img/cloud.png" class="cloud cloud-left" alt="Cloud Left">
+        <img src="../img/cloud.png" class="cloud cloud-right" alt="Cloud Right">
+    </div>
+    <div class="container">
+        <h1>Game Matematika PSAJ</h1>
+        <a href="Beginner.html"><img src="../img/BEGINNER.png" class="button" alt="Beginner"></a>
+        <a href="Intermediante.html"><img src="../img/INTERMEDIATE.png" class="button" alt="Intermediate"></a>
+        <a href="Expret.html"><img src="../img/EXPERT.png" class="button" alt="Expert"></a>
+        <a href="LeaderBoard.html"><img src="../img/LEADERBOARD.png" class="button" alt="Leaderboard"></a>
+        <a href="AboutUs.html"><img src="../img/ABOUT US.png" class="button" alt="About Us"></a>
+    </div>
+</body>
+</html>
