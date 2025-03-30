@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Pecahan & Persentase</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f9;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 400px;
+            transition: transform 0.3s ease-in-out;
+        }
+        .container:hover {
+            transform: scale(1.05);
+        }
+        .timer {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .question {
+            font-size: 24px;
+            margin: 20px 0;
+        }
+        .options button {
+            display: block;
+            width: 80%;
+            margin: 10px auto;
+            padding: 10px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .options button:hover {
+            background-color: #0056b3;
+        }
+        .hidden {
+            display: none;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .result {
+            animation: fadeIn 0.5s;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="timer">Waktu: <span id="timer">60</span> detik</div>
+        <div class="question" id="question">Soal akan muncul di sini</div>
+        <div class="options" id="options"></div>
+    </div>
+    <div id="resultPopup" class="hidden result">
+        <h2>Hasil Akhir</h2>
+        <p id="correctCount"></p>
+        <p id="wrongCount"></p>
+        <button onclick="restartGame()">Main Lagi</button>
+    </div>
+    <script>
+        let timer = 60;
+        let correct = 0;
+        let wrong = 0;
+        let interval;
+        let correctAnswer;
+
+        function startGame() {
+            correct = 0;
+            wrong = 0;
+            timer = 60;
+            document.getElementById("resultPopup").classList.add("hidden");
+            document.querySelector(".container").classList.remove("hidden");
+            startTimer();
+            generateQuestion();
+        }
+
+        function startTimer() {
+            interval = setInterval(() => {
+                timer--;
+                document.getElementById("timer").innerText = timer;
+                if (timer === 0) {
+                    clearInterval(interval);
+                    showResult();
+                }
+            }, 1000);
+        }
+
+        function generateQuestion() {
+            let numerator = Math.floor(Math.random() * 9) + 1;
+            let denominator = Math.floor(Math.random() * 9) + 2;
+            let type = Math.random() < 0.5 ? "desimal" : "persen";
+            correctAnswer = (numerator / denominator).toFixed(2);
+            if (type === "persen") {
+                correctAnswer = Math.round(correctAnswer * 100) + "%";
+            }
+            document.getElementById("question").innerText = `${numerator}/${denominator} = ? (${type})`;
+            generateOptions(correctAnswer);
+        }
+
+        function generateOptions(correctAnswer) {
+            let optionsContainer = document.getElementById("options");
+            optionsContainer.innerHTML = "";
+            let answers = new Set();
+            answers.add(correctAnswer);
+            while (answers.size < 4) {
+                let randomAnswer = Math.random() < 0.5 ? (Math.random() * 2).toFixed(2) : Math.round(Math.random() * 100) + "%";
+                answers.add(randomAnswer);
+            }
+            let shuffledAnswers = Array.from(answers).sort(() => Math.random() - 0.5);
+            shuffledAnswers.forEach(answer => {
+                let button = document.createElement("button");
+                button.innerText = answer;
+                button.onclick = () => checkAnswer(answer);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function checkAnswer(userAnswer) {
+            if (userAnswer === correctAnswer) {
+                correct++;
+            } else {
+                wrong++;
+            }
+            generateQuestion();
+        }
+
+        function showResult() {
+            document.querySelector(".container").classList.add("hidden");
+            document.getElementById("resultPopup").classList.remove("hidden");
+            document.getElementById("correctCount").innerText = `Benar: ${correct}`;
+            document.getElementById("wrongCount").innerText = `Salah: ${wrong}`;
+        }
+
+        function restartGame() {
+            startGame();
+        }
+
+        startGame();
+    </script>
+</body>
+</html>

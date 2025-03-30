@@ -3,208 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Matematika PSAJ</title>
+    <title>Game Tebak Angka</title>
     <style>
         body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            flex-direction: column;
             font-family: Arial, sans-serif;
-            background-color: #f8f8f8;
-            transition: 0.2s;
-        }
-
-        .info {
-            text-align: left;
-            margin-bottom: 20px;
-            font-size: 18px;
-            color: #444;
-        }
-
-        .question {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 24px;
-        }
-
-        .box {
-            width: 60px;
-            height: 60px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border: 1px solid #ccc;
-            font-size: 24px;
-            font-weight: bold;
-            background: white;
-        }
-
-        .answer-input {
-            width: 200px;
-            padding: 10px;
-            font-size: 18px;
             text-align: center;
-            margin-top: 20px;
-            border: 1px solid #ccc;
-            background: #f1f1f1;
-            transition: 0.3s;
+            margin: 50px;
         }
-
-        .wrong {
-            border: 2px solid red;
-            background: #ffdddd;
-        }
-
-        .popup {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
+        .container {
+            width: 400px;
+            margin: auto;
+            border: 2px solid #ccc;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-            text-align: center;
+        }
+        .timer {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 18px;
+        }
+        .textbox {
+            width: 80%;
+            padding: 10px;
+            margin: 10px;
+        }
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
-
-    <div class="info">
-        <p>Counts: <span id="count">01</span></p>
-        <p>Time Left: <span id="timer">01:00</span></p>
+    <div class="timer">
+        <span id="questionCount">Soal: 1</span> | 
+        <span id="timer">Time Left: 01:00</span>
     </div>
-
-    <div class="question">
-        <div class="box" id="num1">X</div>
-        <div id="operator1">+</div>
-        <div class="box" id="num2">X</div>
-        <div id="operator2">-</div>
-        <div class="box" id="num3">X</div>
+    <div class="container">
+        <h2 id="question">Soal akan muncul di sini</h2>
+        <input type="number" id="answer" class="textbox" placeholder="Masukkan jawaban">
     </div>
-
-    <input type="number" class="answer-input" id="answer" placeholder="Ur answer" autofocus>
-
-    <div class="popup" id="popup">
-        <h2>Game Over!</h2>
-        <p>Total Soal: <span id="totalQuestions">0</span></p>
-        <p>Benar: <span id="correctAnswers">0</span></p>
-        <p>Salah: <span id="wrongAnswers">0</span></p>
+    <div id="resultPopup" class="hidden">
+        <h2>Hasil Akhir</h2>
+        <p id="correctCount"></p>
+        <p id="wrongCount"></p>
         <button onclick="restartGame()">Main Lagi</button>
     </div>
-
     <script>
-        let count = 1;
+        let timer = 60;
         let correct = 0;
         let wrong = 0;
-        let timeLeft = 60;
         let interval;
-        let num1, num2, num3, operator1, operator2, correctAnswer;
+        let currentQuestion;
+        let answer;
+        let questionCount = 1;
+        let missingIndex;
 
         function startGame() {
+            correct = 0;
+            wrong = 0;
+            timer = 60;
+            questionCount = 1;
+            document.getElementById("resultPopup").classList.add("hidden");
+            document.querySelector(".container").classList.remove("hidden");
+            startTimer();
             generateQuestion();
-            interval = setInterval(updateTimer, 1000);
+        }
+
+        function startTimer() {
+            interval = setInterval(() => {
+                timer--;
+                document.getElementById("timer").innerText = `Time Left: 00:${timer < 10 ? '0' + timer : timer}`;
+                if (timer === 0) {
+                    clearInterval(interval);
+                    showResult();
+                }
+            }, 1000);
         }
 
         function generateQuestion() {
-            num1 = Math.floor(Math.random() * 100) + 1;
-            num2 = Math.floor(Math.random() * 100) + 1;
-            num3 = Math.floor(Math.random() * 100) + 1;
-
-            let operators = ["+", "-"];
-            operator1 = operators[Math.floor(Math.random() * operators.length)];
-            operator2 = operators[Math.floor(Math.random() * operators.length)];
-
-            calculateCorrectAnswer();
-
-            document.getElementById("num1").innerText = num1;
-            document.getElementById("num2").innerText = num2;
-            document.getElementById("num3").innerText = num3;
-            document.getElementById("operator1").innerText = operator1;
-            document.getElementById("operator2").innerText = operator2;
-
-            document.getElementById("answer").value = "";
-            document.getElementById("answer").classList.remove("wrong");
-            document.getElementById("count").innerText = count < 10 ? "0" + count : count;
+            let base = Math.floor(Math.random() * 5) + 1;
+            let step = Math.floor(Math.random() * 5) + 2;
+            let sequence = [base, base + step, base + 2 * step, base + 3 * step, base + 4 * step];
+            missingIndex = Math.floor(Math.random() * 4) + 1; // Random posisi kosong dari 2 - 5
+            answer = sequence[missingIndex];
+            sequence[missingIndex] = "?";
+            currentQuestion = sequence.join(", ");
+            document.getElementById("question").innerText = currentQuestion;
+            document.getElementById("questionCount").innerText = `Soal: ${questionCount}`;
         }
 
-        function calculateCorrectAnswer() {
-            if (operator1 === "+" && operator2 === "+") {
-                correctAnswer = num1 + num2 + num3;
-            } else if (operator1 === "+" && operator2 === "-") {
-                correctAnswer = num1 + num2 - num3;
-            } else if (operator1 === "-" && operator2 === "+") {
-                correctAnswer = num1 - num2 + num3;
-            } else {
-                correctAnswer = num1 - num2 - num3;
+        document.getElementById("answer").addEventListener("keyup", function(event) {
+            if (event.key === "Enter") {
+                submitAnswer();
             }
-        }
+        });
 
-        function checkAnswer() {
+        function submitAnswer() {
             let userAnswer = parseInt(document.getElementById("answer").value);
-            if (!isNaN(userAnswer)) {
-                if (userAnswer === correctAnswer) {
-                    correct++;
-                } else {
-                    wrong++;
-                    showWrongEffect();
-                }
-                count++;
-                generateQuestion(); // Generate the next question regardless of correctness
+            if (userAnswer === answer) {
+                correct++;
+            } else {
+                wrong++;
             }
+            document.getElementById("answer").value = "";
+            questionCount++;
+            generateQuestion();
         }
 
-        function showWrongEffect() {
-            let body = document.body;
-            let input = document.getElementById("answer");
-            body.style.transform = "translateX(-5px)";
-            input.classList.add("wrong");
-            
-            setTimeout(() => {
-                body.style.transform = "translateX(0px)";
-                input.classList.remove("wrong"); // Remove the wrong class after the effect
-                document.getElementById("answer").value = ""; // Clear the input for the next attempt
-            }, 300);
-        }
-
-        function updateTimer() {
-            timeLeft--;
-            let minutes = Math.floor(timeLeft / 60);
-            let seconds = timeLeft % 60;
-            document.getElementById("timer").innerText = `0${minutes}:${seconds < 10 ? "0" + seconds : seconds}`;
-            
-            if (timeLeft <= 0) {
-                clearInterval(interval);
-                showPopup();
-            }
-        }
-
-        function showPopup() {
-            document.getElementById("totalQuestions").innerText = count - 1;
-            document.getElementById("correctAnswers").innerText = correct;
-            document.getElementById("wrongAnswers").innerText = wrong;
-            document.getElementById("popup").style.display = "block";
+        function showResult() {
+            document.querySelector(".container").classList.add("hidden");
+            document.getElementById("resultPopup").classList.remove("hidden");
+            document.getElementById("correctCount").innerText = `Benar: ${correct}`;
+            document.getElementById("wrongCount").innerText = `Salah: ${wrong}`;
         }
 
         function restartGame() {
-            count = 1;
-            correct = 0;
-            wrong = 0;
-            timeLeft = 60;
-            document.getElementById("popup").style.display = "none";
-            document.getElementById("timer").innerText = "01:00";
             startGame();
         }
-
-        document.getElementById("answer").addEventListener("keypress", function(event) {
-            if (event.key === "Enter") {
-                checkAnswer();
-            }
-        });
 
         startGame();
     </script>

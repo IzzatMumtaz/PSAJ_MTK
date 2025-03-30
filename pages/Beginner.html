@@ -67,6 +67,17 @@
 </head>
 <body>
 
+    <div id="back-container"></div>
+
+    <script>
+        fetch("../components/back.html")
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById("back-container").innerHTML = html;
+            })
+            .catch(error => console.error("Gagal memuat back.html:", error));
+    </script>
+
     <div class="info">
         <p>Counts: <span id="count">01</span></p>
         <p>Time Left: <span id="timer">01:00</span></p>
