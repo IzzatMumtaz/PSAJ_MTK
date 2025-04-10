@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Game Pecahan & Persentase - Expert</title>
+  <style>
+    @font-face {
+      font-family: 'SuperMario256';
+      src: url('../fonts/SuperMario256.ttf') format('truetype');
+    }
+    body {
+      font-family: 'SuperMario256', Arial, sans-serif;
+      text-align: center;
+      background-color: #f4f4f9;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      width: 400px;
+      transition: transform 0.3s ease-in-out;
+    }
+    .container:hover {
+      transform: scale(1.05);
+    }
+    .timer {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+    .question {
+      font-size: 24px;
+      margin: 20px 0;
+    }
+    .options button {
+      font-family: 'SuperMario256', Arial, sans-serif;
+      display: block;
+      width: 80%;
+      margin: 10px auto;
+      padding: 10px;
+      font-size: 18px;
+      border: none;
+      border-radius: 5px;
+      background-color: #007BFF;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .options button:hover {
+      background-color: #0056b3;
+    }
+    .hidden {
+      display: none;
+    }
+
+    .top-info {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  text-align: right;
+  font-size: 16px;
+  font-family: 'SuperMario256', Arial, sans-serif;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 10px 15px;
+  border-radius: 10px;
+  box-shadow: 0 0 5px rgba(0,0,0,0.2);
+}
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .result {
+      animation: fadeIn 0.5s;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.2);
+      width: 400px;
+      text-align: center;
+      background: #B7AEFA;
+      border: 3px #9486FF solid;
+    }
+    #username {
+      padding: 10px;
+      margin-top: 10px;
+      width: 80%;
+      font-size: 16px;
+      font-family: 'SuperMario256', Arial, sans-serif;
+    }
+    .result button {
+      margin-top: 10px;
+      font-family: 'SuperMario256', Arial, sans-serif;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      background-color: white;
+      cursor: pointer;
+    }
+    .oa {
+      border-radius: 10px;
+      font-family: 'SuperMario256', Arial, sans-serif;
+      padding: 8px 20px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="question" id="question">Soal akan muncul di sini</div>
+    <div class="options" id="options"></div>
+  </div>
+
+  <div class="top-info">
+    <div>Soal ke-<span id="questionCount">1</span></div>
+    <div class="timer">Waktu: <span id="timer">60</span> detik</div>
+  </div>
+
+  <!-- POPUP HASIL -->
+  <div id="resultPopup" class="hidden result">
+    <h2>Hasil Akhir</h2>
+    <p id="correctCount"></p>
+    <p id="wrongCount"></p>
+    <input class="oa" type="text" id="username" placeholder="Masukkan nama kamu" />
+    <br />
+    <button class="oa" onclick="saveScoreAndRestart()">Simpan dan Main Lagi</button>
+    <button class="oa" onclick="savescoreAndBack()">Simpan dan Keluar</button>
+  </div>
+
+  <script>
+    let questionNumber = 1;
+    let timer = 60;
+    let correct = 0;
+    let wrong = 0;
+    let interval;
+    let correctAnswer;
+
+    function startGame() {
+  correct = 0;
+  wrong = 0;
+  timer = 60;
+  questionNumber = 1;
+  document.getElementById("questionCount").innerText = questionNumber;
+  document.getElementById("resultPopup").classList.add("hidden");
+  document.querySelector(".container").classList.remove("hidden");
+  startTimer();
+  generateQuestion();
+}
+
+
+    function startTimer() {
+      interval = setInterval(() => {
+        timer--;
+        document.getElementById("timer").innerText = timer;
+        if (timer === 0) {
+          clearInterval(interval);
+          showResult();
+        }
+      }, 1000);
+    }
+
+    function generateQuestion() {
+      let numerator = Math.floor(Math.random() * 9) + 1;
+      let denominator = Math.floor(Math.random() * 9) + 2;
+      let type = Math.random() < 0.5 ? "desimal" : "persen";
+      correctAnswer = (numerator / denominator).toFixed(2);
+      if (type === "persen") {
+        correctAnswer = Math.round(correctAnswer * 100) + "%";
+      }
+      document.getElementById("question").innerText = `${numerator}/${denominator} = ? (${type})`;
+      generateOptions(correctAnswer);
+    }
+
+    function generateOptions(correctAnswer) {
+      let optionsContainer = document.getElementById("options");
+      optionsContainer.innerHTML = "";
+      let answers = new Set();
+      answers.add(correctAnswer);
+      while (answers.size < 4) {
+        let randomAnswer = Math.random() < 0.5
+          ? (Math.random() * 2).toFixed(2)
+          : Math.round(Math.random() * 100) + "%";
+        answers.add(randomAnswer);
+      }
+      let shuffledAnswers = Array.from(answers).sort(() => Math.random() - 0.5);
+      shuffledAnswers.forEach(answer => {
+        let button = document.createElement("button");
+        button.innerText = answer;
+        button.onclick = () => checkAnswer(answer);
+        optionsContainer.appendChild(button);
+      });
+    }
+
+    function checkAnswer(userAnswer) {
+  if (userAnswer === correctAnswer) {
+    correct++;
+  } else {
+    wrong++;
+  }
+  questionNumber++;
+  document.getElementById("questionCount").innerText = questionNumber;
+  generateQuestion();
+}
+
+
+    function showResult() {
+      document.querySelector(".container").classList.add("hidden");
+      document.getElementById("resultPopup").classList.remove("hidden");
+      document.getElementById("correctCount").innerText = `Benar: ${correct}`;
+      document.getElementById("wrongCount").innerText = `Salah: ${wrong}`;
+      document.getElementById("username").value = "";
+    }
+
+    function saveScoreAndRestart() {
+      const name = document.getElementById("username").value.trim();
+      if (name === "") {
+        alert("Masukkan nama kamu dulu!");
+        return;
+      }
+
+      const scoreData = { name, score: correct };
+      let storedScores = JSON.parse(localStorage.getItem("expertscore")) || [];
+      storedScores.push(scoreData);
+      localStorage.setItem("expertscore", JSON.stringify(storedScores));
+
+      startGame();
+    }
+
+    function savescoreAndBack() {
+      const name = document.getElementById("username").value.trim();
+      if (name === "") {
+        alert("Masukkan nama terlebih dahulu!");
+        return;
+      }
+
+      const scoreData = { name, score: correct };
+      let storedScores = JSON.parse(localStorage.getItem("expertscore")) || [];
+      storedScores.push(scoreData);
+      localStorage.setItem("expertscore", JSON.stringify(storedScores));
+
+      if (window.history.length > 1) {
+        history.go(-1);
+      } else {
+        window.location.href = "index.html";
+      }
+    }
+
+    startGame();
+  </script>
+</body>
+</html>

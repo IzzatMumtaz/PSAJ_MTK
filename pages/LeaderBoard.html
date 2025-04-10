@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Leaderboard Matematika PSAJ</title>
+  <style>
+    @font-face {
+      font-family: 'SuperMario256';
+      src: url('../fonts/SuperMario256.ttf') format('truetype');
+    }
+
+    body {
+      font-family: 'SuperMario256', Arial, sans-serif;
+      padding: 40px;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    select {
+      padding: 8px;
+      font-size: 14px;
+      margin-bottom: 20px;
+      font-family: 'SuperMario256', Arial, sans-serif;
+    }
+
+    table {
+      width: 80%;
+      margin: 0 auto;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      border: 1px solid #aaa;
+      padding: 10px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #eee;
+    }
+  </style>
+</head>
+<body>
+    <div id="back-container"></div>
+
+    <script>
+        fetch("../components/back.html")
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById("back-container").innerHTML = html;
+            })
+            .catch(error => console.error("Gagal memuat back.html:", error));
+    </script>
+
+
+  <h1>Matematika PSAJ’s Leaderboard</h1>
+
+  <label for="levelFilter">Game Level Filter</label>
+  <select id="levelFilter" onchange="filterTable()">
+    <option value="All">Random</option>
+    <option value="Beginner">Beginner</option>
+    <option value="Intermediate">Intermediate</option>
+    <option value="Expert">Expert</option>
+  </select>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Rank</th>
+        <th>Name</th>
+        <th>Level Counts</th>
+        <th>Game Level</th>
+      </tr>
+    </thead>
+    <tbody id="leaderboardBody">
+      <!-- Akan diisi via JavaScript -->
+    </tbody>
+  </table>
+
+  <script>
+    function getStoredScores(levelKey, levelName) {
+      let scores = JSON.parse(localStorage.getItem(levelKey)) || [];
+      return scores.map(item => ({
+        name: item.name,
+        score: item.score,
+        level: levelName
+      }));
+    }
+  
+    function filterTable() {
+      const selected = document.getElementById("levelFilter").value;
+  
+      const beginner = getStoredScores("beginnerscore", "Beginner");
+      const intermediate = getStoredScores("intermediantescore", "Intermediate");
+      const expert = getStoredScores("expertscore", "Expert");
+  
+      let combined = [];
+  
+      if (selected === "All") {
+        combined = [...beginner, ...intermediate, ...expert];
+      } else if (selected === "Beginner") {
+        combined = beginner;
+      } else if (selected === "Intermediate") {
+        combined = intermediate;
+      } else if (selected === "Expert") {
+        combined = expert;
+      }
+  
+      // Sort dari skor tertinggi dan ambil hanya 10 besar
+      combined.sort((a, b) => b.score - a.score);
+      const top10 = combined.slice(0, 10);
+  
+      const tbody = document.getElementById("leaderboardBody");
+      tbody.innerHTML = "";
+  
+      if (top10.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4">Belum ada data skor</td></tr>`;
+        return;
+      }
+  
+      top10.forEach((item, index) => {
+        const row = `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${item.name}</td>
+            <td>${item.score}</td>
+            <td>${item.level}</td>
+          </tr>
+        `;
+        tbody.innerHTML += row;
+      });
+    }
+  
+    // Jalankan pertama kali saat halaman dibuka
+    filterTable();
+  </script>
+  
+</body>
+</html>

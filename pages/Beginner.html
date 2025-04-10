@@ -1,187 +1,325 @@
 <!DOCTYPE html>
 <html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Game Matematika PSAJ</title>
     <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            flex-direction: column;
-            font-family: Arial, sans-serif;
-            background-color: #f8f8f8;
-        }
+      @font-face {
+        font-family: "SuperMario256";
+        src: url("../fonts/SuperMario256.ttf") format("truetype");
+      }
 
-        .info {
-            text-align: left;
-            margin-bottom: 20px;
-            font-size: 18px;
-            color: #444;
-        }
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        flex-direction: column;
+        font-family: "SuperMario256", Arial, sans-serif;
+        background-color: #f8f8f8;
+      }
 
-        .question {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 24px;
-        }
+      .info {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  font-family: 'SuperMario256', Arial, sans-serif;
+  font-size: 20px;
+  font-weight: bold;
+  color: black;
+  background-color: rgba(255,255,255,0.8);
+  padding: 8px 14px;
+  border-radius: 12px;
+  box-shadow: 0 0 5px rgba(0,0,0,0.1);
+}
 
-        .box {
-            width: 60px;
-            height: 60px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border: 1px solid #ccc;
-            font-size: 24px;
-            font-weight: bold;
-            background: white;
-        }
 
-        .answer-input {
-            width: 200px;
-            padding: 10px;
-            font-size: 18px;
-            text-align: center;
-            margin-top: 20px;
-            border: 1px solid #ccc;
-            background: #f1f1f1;
-        }
+      .question {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 24px;
+      }
 
-        .popup {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-            text-align: center;
-        }
+      #operator {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      #operator img {
+        max-width: 100%;
+        max-height: 100%;
+      }
+
+      .box {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 24px;
+        font-weight: bold;
+        background-image: url("../img/box.png"); /* ganti sesuai path jika perlu */
+        background-size: cover;
+        background-position: center;
+        color: #000; /* Warna teks agar tetap terlihat */
+        border: none; /* hapus border agar lebih clean */
+      }
+
+      .answer-input {
+        width: 200px;
+        height: 60px;
+        padding: 10px;
+        font-size: 18px;
+        text-align: center;
+        margin-top: 20px;
+        font-family: "SuperMario256", Arial, sans-serif;
+        background: url("../img/placeholder.png") no-repeat center;
+        background-size: contain;
+        color: black;
+
+        /* Yang kamu butuhkan */
+        border: none;
+        outline: none;
+        -moz-appearance: textfield;
+      }
+      .answer-input::-webkit-outer-spin-button,
+      .answer-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+
+      .popup {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #B7AEFA;
+        border: 3px  #9486FF solid ;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        text-align: center;
+      }
+
+      .oa {
+        border-radius: 10px;
+        font-family: 'SuperMario256', Arial, sans-serif;
+      padding: 8px 20px;
+      margin-top: 10px;
+      }
     </style>
-</head>
-<body>
-
+  </head>
+  <body>
     <div id="back-container"></div>
 
     <script>
-        fetch("../components/back.html")
-            .then(response => response.text())
-            .then(html => {
-                document.getElementById("back-container").innerHTML = html;
-            })
-            .catch(error => console.error("Gagal memuat back.html:", error));
+      fetch("../components/back.html")
+        .then((response) => response.text())
+        .then((html) => {
+          document.getElementById("back-container").innerHTML = html;
+        })
+        .catch((error) => console.error("Gagal memuat back.html:", error));
     </script>
 
     <div class="info">
-        <p>Counts: <span id="count">01</span></p>
-        <p>Time Left: <span id="timer">01:00</span></p>
+      <p>Counts: <span id="count">01</span></p>
+      <p>Time Left: <span id="timer">01:00</span></p>
     </div>
 
     <div class="question">
-        <div class="box" id="num1">X</div>
-        <div id="operator">+</div>
-        <div class="box" id="num2">X</div>
+      <div class="box" id="num1">X</div>
+      <div id="operator">+</div>
+      <div class="box" id="num2">X</div>
     </div>
 
-    <input type="number" class="answer-input" id="answer" placeholder="Ur answer" autofocus>
+    <input type="number" class="answer-input" id="answer" placeholder="Ur answer" autofocus />
 
     <div class="popup" id="popup">
-        <h2>Game Over!</h2>
-        <p>Total Soal: <span id="totalQuestions">0</span></p>
-        <p>Benar: <span id="correctAnswers">0</span></p>
-        <p>Salah: <span id="wrongAnswers">0</span></p>
-        <button onclick="restartGame()">Main Lagi</button>
+      <h2>Game Over!</h2>
+      <p>Total Soal: <span id="totalQuestions">0</span></p>
+      <p>Benar: <span id="correctAnswers">0</span></p>
+      <p>Salah: <span id="wrongAnswers">0</span></p>
+
+      <input class="oa"
+        type="text"
+        id="username"
+        placeholder="Masukkan nama kamu"
+        style="
+          font-family: 'SuperMario256', Arial, sans-serif;
+          margin-bottom: 10px;
+          padding: 8px;
+          width: 80%;
+        "
+      />
+
+      <button class="oa"
+        onclick="saveNameAndRestart()"
+        style="font-family: 'SuperMario256', Arial, sans-serif"
+      >
+        Simpan dan Main Lagi
+      </button>
+      <button class="oa"
+        onclick="savescoreAndBack()"
+        style="font-family: 'SuperMario256', Arial, sans-serif"
+      >
+        Simpan dan Keluar
+      </button>
     </div>
 
     <script>
-        let count = 1;
-        let correct = 0;
-        let wrong = 0;
-        let timeLeft = 60;
-        let interval;
-        let num1, num2, correctAnswer, operator;
+      let count = 1;
+      let correct = 0;
+      let wrong = 0;
+      let timeLeft = 5;
+      let interval;
+      let num1, num2, correctAnswer, operator;
 
-        function startGame() {
-            generateQuestion();
-            interval = setInterval(updateTimer, 1000);
+      function startGame() {
+        generateQuestion();
+        interval = setInterval(updateTimer, 1000);
+      }
+
+      function saveNameAndRestart() {
+        console.log("Simpan & Main Lagi diklik");
+        const name = document.getElementById("username").value.trim();
+        if (name !== "") {
+          const scoreData = {
+            name: name,
+            score: correct,
+          };
+
+          // Ambil skor lama dari localStorage (kalau ada)
+          let storedScores = JSON.parse(localStorage.getItem("beginnerscore"));
+          if (!Array.isArray(storedScores)) {
+            storedScores = [];
+          }
+
+          // Tambahkan skor baru
+          storedScores.push(scoreData);
+
+          // Simpan kembali ke localStorage
+          localStorage.setItem("beginnerscore", JSON.stringify(storedScores));
+
+          restartGame();
+        } else {
+          alert("Masukkan nama terlebih dahulu!");
+        }
+      }
+
+      function savescoreAndBack() {
+        console.log("Simpan & Keluar diklik");
+        const name = document.getElementById("username").value.trim();
+        if (name !== "") {
+          const scoreData = {
+            name: name,
+            score: correct,
+          };
+
+          let storedScores = JSON.parse(localStorage.getItem("beginnerscore"));
+          if (!Array.isArray(storedScores)) {
+            storedScores = [];
+          }
+
+          storedScores.push(scoreData);
+          localStorage.setItem("beginnerscore", JSON.stringify(storedScores));
+
+          if (window.history.length > 1) {
+            history.go(-1);
+          } else {
+            window.location.href = "index.html";
+          }
+        } else {
+          alert("Masukkan nama terlebih dahulu!");
+        }
+      }
+
+      function generateQuestion() {
+        num1 = Math.floor(Math.random() * 100) + 1;
+        num2 = Math.floor(Math.random() * 100) + 1;
+
+        // Randomly choose between addition and subtraction
+        if (Math.random() < 0.5) {
+          operator = "+";
+          correctAnswer = num1 + num2;
+        } else {
+          operator = "-";
+          correctAnswer = num1 - num2;
         }
 
-        function generateQuestion() {
-            num1 = Math.floor(Math.random() * 100) + 1;
-            num2 = Math.floor(Math.random() * 100) + 1;
-
-            // Randomly choose between addition and subtraction
-            if (Math.random() < 0.5) {
-                operator = '+';
-                correctAnswer = num1 + num2;
-            } else {
-                operator = '-';
-                correctAnswer = num1 - num2;
-            }
-
-            document.getElementById("num1").innerText = num1;
-            document.getElementById("num2").innerText = num2;
-            document.getElementById("operator").innerText = operator;
-            document.getElementById("answer").value = "";
-            document.getElementById("count").innerText = count < 10 ? "0" + count : count;
+        document.getElementById("num1").innerText = num1;
+        document.getElementById("num2").innerText = num2;
+        if (operator === "+") {
+          document.getElementById("operator").innerHTML =
+            '<img src="../img/plus.png" alt="plus">';
+        } else {
+          document.getElementById("operator").innerHTML =
+            '<img src="../img/min.png" alt="minus">';
         }
+        document.getElementById("answer").value = "";
+        document.getElementById("count").innerText =
+          count < 10 ? "0" + count : count;
+      }
 
-        function checkAnswer() {
-            let userAnswer = parseInt(document.getElementById("answer").value);
-            if (!isNaN(userAnswer)) {
-                if (userAnswer === correctAnswer) {
-                    correct++;
-                } else {
-                    wrong++;
-                }
-                count++;
-                generateQuestion();
-            }
+      function checkAnswer() {
+        let userAnswer = parseInt(document.getElementById("answer").value);
+        if (!isNaN(userAnswer)) {
+          if (userAnswer === correctAnswer) {
+            correct++;
+          } else {
+            wrong++;
+          }
+          count++;
+          generateQuestion();
         }
+      }
 
-        function updateTimer() {
-            timeLeft--;
-            let minutes = Math.floor(timeLeft / 60);
-            let seconds = timeLeft % 60;
-            document.getElementById("timer").innerText = `0${minutes}:${seconds < 10 ? "0" + seconds : seconds}`;
-            
-            if (timeLeft <= 0) {
-                clearInterval(interval);
-                showPopup();
-            }
+      function updateTimer() {
+        timeLeft--;
+        let minutes = Math.floor(timeLeft / 60);
+        let seconds = timeLeft % 60;
+        document.getElementById("timer").innerText = `0${minutes}:${
+          seconds < 10 ? "0" + seconds : seconds
+        }`;
+
+        if (timeLeft <= 0) {
+          clearInterval(interval);
+          showPopup();
         }
+      }
 
-        function showPopup() {
-            document.getElementById("totalQuestions").innerText = count - 1;
-            document.getElementById("correctAnswers").innerText = correct;
-            document.getElementById("wrongAnswers").innerText = wrong;
-            document.getElementById("popup").style.display = "block";
-        }
+      function showPopup() {
+        document.getElementById("totalQuestions").innerText = count - 1;
+        document.getElementById("correctAnswers").innerText = correct;
+        document.getElementById("wrongAnswers").innerText = wrong;
+        document.getElementById("popup").style.display = "block";
 
-        function restartGame() {
-            count = 1;
-            correct = 0;
-            wrong = 0;
-            timeLeft = 60;
-            document.getElementById("popup").style.display = "none";
-            document.getElementById("timer").innerText = "01:00";
-            startGame();
-        }
+        document.getElementById("username").value = "";
+      }
 
-        document.getElementById("answer").addEventListener("keypress", function(event) {
-            if (event.key === "Enter") {
-                checkAnswer();
-            }
+      function restartGame() {
+        count = 1;
+        correct = 0;
+        wrong = 0;
+        timeLeft = 60;
+        document.getElementById("popup").style.display = "none";
+        document.getElementById("timer").innerText = "01:00";
+        startGame();
+      }
+
+      document
+        .getElementById("answer")
+        .addEventListener("keypress", function (event) {
+          if (event.key === "Enter") {
+            checkAnswer();
+          }
         });
 
-        startGame();
+      startGame();
     </script>
-
-</body>
+  </body>
 </html>

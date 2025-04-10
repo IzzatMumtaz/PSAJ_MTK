@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Game Matematika PSAJ</title>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const beginner = document.querySelector("img[alt='Beginner']");
+        const intermediate = document.querySelector("img[alt='Intermediate']");
+        const expert = document.querySelector("img[alt='Expert']");
+        const leaderboard = document.querySelector("img[alt='Leaderboard']");
+        const aboutus = document.querySelector("img[alt='About Us']");
+        const cloudContainer = document.querySelector(".cloud-container");
+        const cloudLeft = document.querySelector(".cloud-left");
+        const cloudRight = document.querySelector(".cloud-right");
+        const audio = document.getElementById("background-music");
+        const muteButton = document.getElementById("mute-button");
+        let isMuted = false;
+        function hideClouds() {
+  cloudContainer.style.display = "none";
+  cloudLeft.style.opacity = 0;
+  cloudRight.style.opacity = 0;
+}
+
+
+        // Memainkan lagu langsung saat halaman dimuat
+        audio.play().catch(() => {
+            console.log("Autoplay dicegah oleh browser. Menunggu interaksi pengguna.");
+        });
+
+        // Jika autoplay dicegah, pastikan lagu mulai saat pertama kali pengguna klik di mana saja
+        document.addEventListener("click", function() {
+            if (audio.paused) {
+                audio.play();
+            }
+        }, { once: true }); // hanya berlaku sekali
+
+        function fadeInClouds(leftSrc, rightSrc) {
+          cloudLeft.style.opacity = 0;
+          cloudRight.style.opacity = 0;
+
+          setTimeout(() => {
+            cloudLeft.src = leftSrc;
+            cloudRight.src = rightSrc;
+
+            void cloudLeft.offsetWidth;
+            void cloudRight.offsetWidth;
+
+            cloudLeft.style.opacity = 1;
+            cloudRight.style.opacity = 1;
+          }, 500);
+        }
+
+        beginner.addEventListener("mouseenter", function () {
+  document.body.style.backgroundPosition = "center top";
+  hideClouds();
+});
+
+intermediate.addEventListener("mouseenter", function () {
+  document.body.style.backgroundPosition = "center 25%";
+  hideClouds();
+});
+
+expert.addEventListener("mouseenter", function () {
+  document.body.style.backgroundPosition = "center 50%";
+  hideClouds();
+});
+
+leaderboard.addEventListener("mouseenter", function () {
+  document.body.style.backgroundPosition = "center 75%";
+  hideClouds();
+});
+
+
+        aboutus.addEventListener("mouseenter", function () {
+          document.body.style.backgroundPosition = "center 100%";
+          cloudContainer.style.display = "flex";
+          fadeInClouds(
+            "../img/MAT-1-Firefly-Left.png",
+            "../img/MAT-1-Firefly-Right.png",
+            "../img/MAT-1-Firefly-Center.png"
+          );
+        });
+
+        muteButton.addEventListener("click", function () {
+          isMuted = !isMuted;
+          audio.muted = isMuted;
+          muteButton.src = isMuted ? "../img/mute.png" : "../img/unmute.png"; // Ganti gambar sesuai status mute
+        });
+      });
+    </script>
+  </head>
+  <body>
+    
+    <audio id="background-music" autoplay loop>
+        <source src="../audio/Menu.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    <div class="cloud-container">
+      <img src="" class="cloud cloud-left" alt="Cloud Left" />
+      <img src="" class="cloud cloud-right" alt="Cloud Right" />
+      <img src="" class="cloud firefly-left" alt="Firefly Left" />
+      <img src="" class="cloud firefly-right" alt="Firefly Right" />
+    </div>
+    <div class="container">
+      <h1>Game Matematika PSAJ</h1>
+      <a href="Beginner.html"
+        ><img src="../img/BEGINNER.png" class="button" alt="Beginner"
+      /></a>
+      <a href="Intermediante.html"
+        ><img src="../img/INTERMEDIATE.png" class="button" alt="Intermediate"
+      /></a>
+      <a href="Expert.html"
+        ><img src="../img/EXPERT.png" class="button" alt="Expert"
+      /></a>
+      <a href="LeaderBoard.html"
+        ><img src="../img/LEADERBOARD.png" class="button" alt="Leaderboard"
+      /></a>
+      <a href="AboutUs.html"
+        ><img src="../img/ABOUT US.png" class="button" alt="About Us"
+      /></a>
+    </div>
+    <img
+      id="mute-button"
+      src="../img/unmute.png"
+      alt="Mute/Unmute"
+      style="
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        cursor: pointer;
+        width: 50px;
+        height: auto;
+      "
+    />
+  </body>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: url("../img/MAT-1.-Revisi1png.png") no-repeat center top;
+      background-size: cover;
+      text-align: center;
+      font-family: Arial, sans-serif;
+      transition: background-position 0.5s ease-in-out;
+      overflow: hidden;
+    }
+    .container {
+      position: relative;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    h1 {
+      color: black;
+      margin-bottom: 20px;
+    }
+    .button {
+      margin: 10px;
+      cursor: pointer;
+      transition: transform 0.2s;
+      width: 350px;
+      height: auto;
+    }
+    .button:hover {
+      animation: shake 0.3s infinite;
+    }
+    @keyframes shake {
+      0% {
+        transform: translate(0, 0);
+      }
+      25% {
+        transform: translate(-2px, 2px);
+      }
+      50% {
+        transform: translate(2px, -2px);
+      }
+      75% {
+        transform: translate(-2px, 2px);
+      }
+      100% {
+        transform: translate(2px, -2px);
+      }
+    }
+
+    /* Cloud Container */
+    .cloud-container {
+      position: absolute;
+      width: 100%;
+      height: 1920px;
+      top: 0;
+      left: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: -1;
+    }
+    .cloud {
+      position: absolute;
+      width: auto;
+      height: 350px;
+      opacity: 0; /* Mulai dengan opacity 0 */
+      transition: opacity 0.5s ease-in-out; /* Transisi untuk efek fade */
+    }
+    .cloud-left {
+      left: -700px;
+      animation: moveCloudsLeft 15s infinite alternate ease-in-out;
+      top: 350px;
+    }
+    .cloud-right { 
+      right: -700px;
+      animation: moveCloudsRight 15s infinite alternate ease-in-out;
+      top: 0px;
+    }
+    @keyframes moveCloudsLeft {
+      0% {
+        left: -700px;
+      }
+      100% {
+        left: 800px;
+      }
+    }
+    @keyframes moveCloudsRight {
+      0% {
+        right: -700px;
+      }
+      100% {
+        right: 800px;
+      }
+    }
+  </style>
+</html>
