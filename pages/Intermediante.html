@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Game Tebak Angka</title>
+  <title>Game Tebak Angka - Intermediate</title>
   <style>
     @font-face {
       font-family: 'SuperMario256';
-      src: url('../fonts/SuperMario256.ttf') format('truetype');
+      src: url('../fonts/Mtk_font-Regular.ttf') format('truetype');
     }
 
     body {
@@ -21,21 +21,26 @@
       align-items: center;
       justify-content: center;
       height: 100vh;
+      background-image: url("../img/MAT-1.-Revisi1png.png");
+      background-size: 100% 500%;
+  background-position: 0% 25%;
+  background-repeat: no-repeat;
+  background-color: #f8f8f8;
     }
 
     .timer {
-  position: absolute;
-  top: 20px;
-  right: 30px;
-  font-family: 'SuperMario256', Arial, sans-serif;
-  font-size: 20px;
-  font-weight: bold;
-  color: black;
-  background-color: rgba(255,255,255,0.8);
-  padding: 8px 14px;
-  border-radius: 12px;
-  box-shadow: 0 0 5px rgba(0,0,0,0.1);
-}
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      font-family: 'SuperMario256', Arial, sans-serif;
+      font-size: 20px;
+      font-weight: bold;
+      color: black;
+      background-color: rgba(255,255,255,0.8);
+      padding: 8px 14px;
+      border-radius: 12px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
 
     .container {
       width: 400px;
@@ -43,14 +48,7 @@
       border: 2px solid #9486FF;
       border-radius: 10px;
       background-color: #B7AEFA;
-
-    }
-
-    .textbox {
-      width: 80%;
-      padding: 10px;
-      margin: 10px;
-      font-family: 'SuperMario256', Arial, sans-serif;
+      display: none;
     }
 
     .popup {
@@ -74,9 +72,34 @@
       padding: 8px 20px;
       margin-top: 10px;
     }
+
+    #startScreen img {
+      width: 200px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
+
+  <!-- Tombol Start -->
+  <div id="startScreen">
+    <img src="../img/level2.png" alt="Mulai Game" onclick="startGameWithMusic()" style="
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    cursor: pointer;
+    overflow: hidden;
+  "/>
+  </div>
+
+  <!-- Back Button -->
   <div id="back-container"></div>
   <script>
     fetch("../components/back.html")
@@ -87,16 +110,19 @@
       .catch(error => console.error("Gagal memuat back.html:", error));
   </script>
 
+  <!-- Timer -->
   <div class="timer">
     <span id="questionCount">Soal: 1</span> |
     <span id="timer">Time Left: 01:00</span>
   </div>
 
+  <!-- Game Container -->
   <div class="container">
     <h2 id="question">Soal akan muncul di sini</h2>
-    <input class="oa" type="number" id="answer" class="textbox" placeholder="Masukkan jawaban" />
+    <input class="oa" type="number" id="answer" placeholder="Masukkan jawaban" />
   </div>
 
+  <!-- Popup Hasil -->
   <div class="popup" id="resultPopup">
     <h2>Game Over!</h2>
     <p>Total Soal: <span id="totalQuestions">0</span></p>
@@ -113,7 +139,27 @@
     <button class="oa" onclick="savescoreAndBack()">Simpan dan Keluar</button>
   </div>
 
+  <!-- Audio Elements -->
+  <audio id="bgMusic" loop>
+    <source src="../audio/In-game.mp3" type="audio/mpeg" />
+  </audio>
+  <audio id="correctSound">
+    <source src="../audio/bnr.mp3" type="audio/mpeg" />
+  </audio>
+  <audio id="wrongSound">
+    <source src="../audio/wrong.mp3" type="audio/mpeg" />
+  </audio>
+  <audio id="gameOverSound">
+    <source src="../audio/Game over.mp3" type="audio/mpeg" />
+  </audio>
+
+  <!-- Script Game -->
   <script>
+    const bgMusic = document.getElementById("bgMusic");
+    const correctSound = document.getElementById("correctSound");
+    const wrongSound = document.getElementById("wrongSound");
+    const gameOverSound = document.getElementById("gameOverSound");
+
     let timer = 60;
     let correct = 0;
     let wrong = 0;
@@ -122,6 +168,12 @@
     let answer;
     let questionCount = 1;
     let missingIndex;
+
+    function startGameWithMusic() {
+      document.getElementById("startScreen").style.display = "none";
+      startGame();
+      bgMusic.play().catch(err => console.log("Autoplay diblokir:", err));
+    }
 
     function startGame() {
       correct = 0;
@@ -168,8 +220,10 @@
       if (!isNaN(userAnswer)) {
         if (userAnswer === answer) {
           correct++;
+          correctSound.play();
         } else {
           wrong++;
+          wrongSound.play();
         }
         document.getElementById("answer").value = "";
         questionCount++;
@@ -178,6 +232,10 @@
     }
 
     function showResult() {
+      bgMusic.pause();
+      bgMusic.currentTime = 0;
+      gameOverSound.play();
+
       document.querySelector(".container").style.display = "none";
       document.getElementById("resultPopup").style.display = "block";
       document.getElementById("totalQuestions").innerText = questionCount - 1;
@@ -189,14 +247,8 @@
     function saveNameAndRestart() {
       const name = document.getElementById("username").value.trim();
       if (name !== "") {
-        const scoreData = {
-          name: name,
-          score: correct
-        };
-        let storedScores = JSON.parse(localStorage.getItem("intermediantescore"));
-        if (!Array.isArray(storedScores)) {
-          storedScores = [];
-        }
+        const scoreData = { name, score: correct };
+        let storedScores = JSON.parse(localStorage.getItem("intermediantescore")) || [];
         storedScores.push(scoreData);
         localStorage.setItem("intermediantescore", JSON.stringify(storedScores));
         restartGame();
@@ -208,17 +260,10 @@
     function savescoreAndBack() {
       const name = document.getElementById("username").value.trim();
       if (name !== "") {
-        const scoreData = {
-          name: name,
-          score: correct
-        };
-        let storedScores = JSON.parse(localStorage.getItem("intermediantescore"));
-        if (!Array.isArray(storedScores)) {
-          storedScores = [];
-        }
+        const scoreData = { name, score: correct };
+        let storedScores = JSON.parse(localStorage.getItem("intermediantescore")) || [];
         storedScores.push(scoreData);
         localStorage.setItem("intermediantescore", JSON.stringify(storedScores));
-
         if (window.history.length > 1) {
           history.go(-1);
         } else {
@@ -237,8 +282,6 @@
       document.getElementById("timer").innerText = "Time Left: 01:00";
       startGame();
     }
-
-    startGame();
   </script>
 </body>
 </html>

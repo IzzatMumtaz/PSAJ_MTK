@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Game Matematika PSAJ</title>
     <script>
-      
       document.addEventListener("DOMContentLoaded", function () {
         const beginner = document.querySelector("img[alt='Beginner']");
         const intermediate = document.querySelector("img[alt='Intermediate']");
@@ -17,86 +16,102 @@
         const cloudRight = document.querySelector(".cloud-right");
         const audio = document.getElementById("background-music");
         const muteButton = document.getElementById("mute-button");
+        const buttonSound = document.getElementById("button-sound");
+        const buttons = document.querySelectorAll(".button");
         let isMuted = false;
+    
         function hideClouds() {
-  cloudContainer.style.display = "none";
-  cloudLeft.style.opacity = 0;
-  cloudRight.style.opacity = 0;
-}
-
-
-        // Memainkan lagu langsung saat halaman dimuat
+          cloudContainer.style.display = "none";
+          cloudLeft.style.opacity = 0;
+          cloudRight.style.opacity = 0;
+        }
+    
+        // Autoplay background music
         audio.play().catch(() => {
-            console.log("Autoplay dicegah oleh browser. Menunggu interaksi pengguna.");
+          console.log("Autoplay dicegah oleh browser. Menunggu interaksi pengguna.");
         });
-
-        // Jika autoplay dicegah, pastikan lagu mulai saat pertama kali pengguna klik di mana saja
-        document.addEventListener("click", function() {
+    
+        // Mulai audio saat pengguna klik pertama
+        document.addEventListener(
+          "click",
+          function () {
             if (audio.paused) {
-                audio.play();
+              audio.play();
             }
-        }, { once: true }); // hanya berlaku sekali
-
+          },
+          { once: true }
+        );
+    
         function fadeInClouds(leftSrc, rightSrc) {
           cloudLeft.style.opacity = 0;
           cloudRight.style.opacity = 0;
-
+    
           setTimeout(() => {
             cloudLeft.src = leftSrc;
             cloudRight.src = rightSrc;
-
+    
             void cloudLeft.offsetWidth;
             void cloudRight.offsetWidth;
-
+    
             cloudLeft.style.opacity = 1;
             cloudRight.style.opacity = 1;
           }, 500);
         }
-
+    
+        // Efek hover background dan cloud
         beginner.addEventListener("mouseenter", function () {
-  document.body.style.backgroundPosition = "center top";
-  hideClouds();
-});
-
-intermediate.addEventListener("mouseenter", function () {
-  document.body.style.backgroundPosition = "center 25%";
-  hideClouds();
-});
-
-expert.addEventListener("mouseenter", function () {
-  document.body.style.backgroundPosition = "center 50%";
-  hideClouds();
-});
-
-leaderboard.addEventListener("mouseenter", function () {
-  document.body.style.backgroundPosition = "center 75%";
-  hideClouds();
-});
-
-
+          document.body.style.backgroundPosition = "center top";
+          hideClouds();
+        });
+        intermediate.addEventListener("mouseenter", function () {
+          document.body.style.backgroundPosition = "center 25%";
+          hideClouds();
+        });
+        expert.addEventListener("mouseenter", function () {
+          document.body.style.backgroundPosition = "center 50%";
+          hideClouds();
+        });
+        leaderboard.addEventListener("mouseenter", function () {
+          document.body.style.backgroundPosition = "center 75%";
+          hideClouds();
+        });
         aboutus.addEventListener("mouseenter", function () {
           document.body.style.backgroundPosition = "center 100%";
           cloudContainer.style.display = "flex";
           fadeInClouds(
             "img/MAT-1-Firefly-Left.png",
-            "img/MAT-1-Firefly-Right.png",
-            "img/MAT-1-Firefly-Center.png"
+            "img/MAT-1-Firefly-Right.png"
           );
         });
-
+    
+        // Mute/Unmute toggle
         muteButton.addEventListener("click", function () {
           isMuted = !isMuted;
           audio.muted = isMuted;
-          muteButton.src = isMuted ? "img/mute.png" : "img/unmute.png"; // Ganti gambar sesuai status mute
+          muteButton.src = isMuted ? "img/mute.png" : "img/unmute.png";
+        });
+    
+        // Efek suara saat hover button
+        function playButtonSound() {
+          buttonSound.currentTime = 0;
+          buttonSound.play();
+        }
+    
+        buttons.forEach((button) => {
+          button.addEventListener("mouseenter", playButtonSound);
         });
       });
     </script>
+    
   </head>
   <body>
-    
     <audio id="background-music" autoplay loop>
-        <source src="audio/Menu.mp3" type="audio/mpeg">
-        Your browser does not support the audio element.
+      <source src="audio/Menu.mp3" type="audio/mpeg" />
+      Your browser does not support the audio element.
+    </audio>
+    <audio id="button-sound">
+      <source src="audio/buttonsound.mp3" type="audio/mpeg" />
+      Your browser does not support the audio element.
     </audio>
     <div class="cloud-container">
       <img src="" class="cloud cloud-left" alt="Cloud Left" />
@@ -105,23 +120,24 @@ leaderboard.addEventListener("mouseenter", function () {
       <img src="" class="cloud firefly-right" alt="Firefly Right" />
     </div>
     <div class="container">
-      <h1>Game Matematika PSAJ</h1>
+      <h1>Math Rush</h1>
       <a href="pages/Beginner.html"
-        ><img src="img/BEGINNER.png" class="button" alt="Beginner"
+        ><img src="img/1.png" class="button" alt="Beginner"
       /></a>
       <a href="pages/Intermediante.html"
-        ><img src="img/INTERMEDIATE.png" class="button" alt="Intermediate"
+        ><img src="img/2.png" class="button" alt="Intermediate"
       /></a>
       <a href="pages/Expert.html"
-        ><img src="img/EXPERT.png" class="button" alt="Expert"
+        ><img src="img/3.png" class="button" alt="Expert"
       /></a>
       <a href="pages/LeaderBoard.html"
-        ><img src="img/LEADERBOARD.png" class="button" alt="Leaderboard"
+        ><img src="img/5.png" class="button" alt="Leaderboard"
       /></a>
       <a href="pages/AboutUs.html"
-        ><img src="img/ABOUT US.png" class="button" alt="About Us"
+        ><img src="img/4.png" class="button" alt="About Us"
       /></a>
     </div>
+    
     <img
       id="mute-button"
       src="img/unmute.png"
@@ -138,8 +154,8 @@ leaderboard.addEventListener("mouseenter", function () {
   </body>
   <style>
     @font-face {
-      font-family: 'Mtk';
-      src: url('fonts/Mtk_font-Regular.ttf') format('truetype');
+      font-family: "Mtk";
+      src: url("fonts/Mtk_font-Regular.ttf") format("truetype");
     }
 
     body {
@@ -148,7 +164,7 @@ leaderboard.addEventListener("mouseenter", function () {
       background: url("img/MAT-1.-Revisi1png.png") no-repeat center top;
       background-size: cover;
       text-align: center;
-      font-family: 'Mtk', Arial, sans-serif;
+      font-family: "Mtk", Arial, sans-serif;
       transition: background-position 0.5s ease-in-out;
       overflow: hidden;
     }
@@ -218,7 +234,7 @@ leaderboard.addEventListener("mouseenter", function () {
       animation: moveCloudsLeft 15s infinite alternate ease-in-out;
       top: 350px;
     }
-    .cloud-right { 
+    .cloud-right {
       right: -700px;
       animation: moveCloudsRight 15s infinite alternate ease-in-out;
       top: 0px;

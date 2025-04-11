@@ -7,7 +7,7 @@
   <style>
     @font-face {
       font-family: 'SuperMario256';
-      src: url('../fonts/SuperMario256.ttf') format('truetype');
+      src: url('../fonts/Mtk_font-Regular.ttf') format('truetype');
     }
     body {
       font-family: 'SuperMario256', Arial, sans-serif;
@@ -18,6 +18,15 @@
       justify-content: center;
       align-items: center;
       height: 100vh;
+      background-image: url("../img/MAT-1.-Revisi1png.png");
+      background-size: 100% 500%;
+  background-position: 0% 50%;
+  background-repeat: no-repeat;
+  background-color: #f8f8f8;
+    }
+    #startScreen img {
+      width: 200px;
+      cursor: pointer;
     }
     .container {
       background: white;
@@ -58,20 +67,19 @@
     .hidden {
       display: none;
     }
-
     .top-info {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  text-align: right;
-  font-size: 16px;
-  font-family: 'SuperMario256', Arial, sans-serif;
-  background: rgba(255, 255, 255, 0.8);
-  padding: 10px 15px;
-  border-radius: 10px;
-  box-shadow: 0 0 5px rgba(0,0,0,0.2);
-}
-
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      font-family: 'SuperMario256', Arial, sans-serif;
+      font-size: 20px;
+      font-weight: bold;
+      color: black;
+      background-color: rgba(255,255,255,0.8);
+      padding: 8px 14px;
+      border-radius: 12px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(-10px); }
       to { opacity: 1; transform: translateY(0); }
@@ -108,20 +116,88 @@
       padding: 8px 20px;
       margin-top: 10px;
     }
+    .option-img {
+  width: 250px;
+  transition: transform 0.3s ease;
+  cursor: pointer;
+  margin: 10px;
+}
+.option-img:hover {
+  transform: scale(1.1);
+}
+.option-wrapper {
+  position: relative;
+  display: inline-block;
+  margin: 10px;
+}
+
+.option-wrapper img {
+  width: 250px;
+  transition: transform 0.3s ease;
+  cursor: pointer;
+}
+
+.option-wrapper:hover img {
+  transform: scale(1.1);
+}
+
+.option-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'SuperMario256', Arial, sans-serif;
+  color: white;
+  font-size: 20px;
+  text-shadow: 1px 1px 3px black;
+  pointer-events: none; /* Supaya tidak mengganggu klik pada gambar */
+}
+
+
   </style>
 </head>
 <body>
-  <div class="container">
+
+  <!-- Tombol Start -->
+  <div id="startScreen">
+    <img src="../img/level3.png" id="startBtn" onclick="startGameWithSound()" style="
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    cursor: pointer;
+    overflow: hidden;
+  "/>
+  </div>
+
+  <div id="back-container"></div>
+    <script>
+      fetch("../components/back.html")
+        .then((response) => response.text())
+        .then((html) => {
+          document.getElementById("back-container").innerHTML = html;
+        })
+        .catch((error) => console.error("Gagal memuat back.html:", error));
+    </script>
+  <!-- Game Container -->
+  <div class="container hidden">
     <div class="question" id="question">Soal akan muncul di sini</div>
     <div class="options" id="options"></div>
   </div>
 
-  <div class="top-info">
-    <div>Soal ke-<span id="questionCount">1</span></div>
-    <div class="timer">Waktu: <span id="timer">60</span> detik</div>
+  <!-- Info Atas -->
+  <div class="top-info hidden">
+    Soal: <span id="questionCount">1</span> | 
+    Time Left: <span id="timer">60</span>
   </div>
 
-  <!-- POPUP HASIL -->
+  <!-- Pop-up Hasil -->
   <div id="resultPopup" class="hidden result">
     <h2>Hasil Akhir</h2>
     <p id="correctCount"></p>
@@ -132,6 +208,21 @@
     <button class="oa" onclick="savescoreAndBack()">Simpan dan Keluar</button>
   </div>
 
+  <!-- AUDIO -->
+  <audio id="bgMusic" loop>
+    <source src="/audio/In-game.mp3" type="audio/mpeg" />
+  </audio>
+  <audio id="correctSound">
+    <source src="/audio/bnr.mp3" type="audio/mpeg" />
+  </audio>
+  <audio id="wrongSound">
+    <source src="/audio/wrong.mp3" type="audio/mpeg" />
+  </audio>
+  <audio id="finishSound">
+    <source src="/audio/Game over.mp3" type="audio/mpeg" />
+  </audio>
+
+
   <script>
     let questionNumber = 1;
     let timer = 60;
@@ -140,20 +231,38 @@
     let interval;
     let correctAnswer;
 
-    function startGame() {
-  correct = 0;
-  wrong = 0;
-  timer = 60;
-  questionNumber = 1;
-  document.getElementById("questionCount").innerText = questionNumber;
-  document.getElementById("resultPopup").classList.add("hidden");
-  document.querySelector(".container").classList.remove("hidden");
-  startTimer();
-  generateQuestion();
+    const bgMusic = document.getElementById("bgMusic");
+    const correctSound = document.getElementById("correctSound");
+    const wrongSound = document.getElementById("wrongSound");
+    const finishSound = document.getElementById("finishSound");
+
+    function startGameWithSound() {
+      document.getElementById("startScreen").style.display = "none";
+      document.querySelector(".container").classList.remove("hidden");
+      document.querySelector(".top-info").classList.remove("hidden");
+      bgMusic.play();
+      startGame();
+    }
+
+    function playButtonSound() {
+  const audio = new Audio('/audio/buttonsound.mp3');
+  audio.play();
 }
 
 
+    function startGame() {
+      correct = 0;
+      wrong = 0;
+      timer = 60;
+      questionNumber = 1;
+      document.getElementById("questionCount").innerText = questionNumber;
+      document.getElementById("resultPopup").classList.add("hidden");
+      startTimer();
+      generateQuestion();
+    }
+
     function startTimer() {
+      clearInterval(interval);
       interval = setInterval(() => {
         timer--;
         document.getElementById("timer").innerText = timer;
@@ -177,39 +286,67 @@
     }
 
     function generateOptions(correctAnswer) {
-      let optionsContainer = document.getElementById("options");
-      optionsContainer.innerHTML = "";
-      let answers = new Set();
-      answers.add(correctAnswer);
-      while (answers.size < 4) {
-        let randomAnswer = Math.random() < 0.5
-          ? (Math.random() * 2).toFixed(2)
-          : Math.round(Math.random() * 100) + "%";
-        answers.add(randomAnswer);
-      }
-      let shuffledAnswers = Array.from(answers).sort(() => Math.random() - 0.5);
-      shuffledAnswers.forEach(answer => {
-        let button = document.createElement("button");
-        button.innerText = answer;
-        button.onclick = () => checkAnswer(answer);
-        optionsContainer.appendChild(button);
-      });
-    }
-
-    function checkAnswer(userAnswer) {
-  if (userAnswer === correctAnswer) {
-    correct++;
-  } else {
-    wrong++;
+  let optionsContainer = document.getElementById("options");
+  optionsContainer.innerHTML = "";
+  let answers = new Set();
+  answers.add(correctAnswer);
+  while (answers.size < 4) {
+    let randomAnswer = Math.random() < 0.5
+      ? (Math.random() * 2).toFixed(2)
+      : Math.round(Math.random() * 100) + "%";
+    answers.add(randomAnswer);
   }
-  questionNumber++;
-  document.getElementById("questionCount").innerText = questionNumber;
-  generateQuestion();
+
+  let shuffledAnswers = Array.from(answers).sort(() => Math.random() - 0.5);
+
+  shuffledAnswers.forEach(answer => {
+    // Buat wrapper
+    let wrapper = document.createElement("div");
+    wrapper.classList.add("option-wrapper");
+
+    // Gambar tombol
+    let imgBtn = document.createElement("img");
+    imgBtn.src = "../img/frame6.png";
+    imgBtn.alt = answer;
+    imgBtn.title = answer;
+    imgBtn.onclick = () => checkAnswer(answer);
+    imgBtn.onmouseenter = () => {
+      playButtonSound();
+    };
+
+    // Teks jawaban
+    let text = document.createElement("div");
+    text.classList.add("option-text");
+    text.innerText = answer;
+
+    // Gabungkan
+    wrapper.appendChild(imgBtn);
+    wrapper.appendChild(text);
+    optionsContainer.appendChild(wrapper);
+  });
 }
 
 
+    function checkAnswer(userAnswer) {
+      if (userAnswer === correctAnswer) {
+        correct++;
+        correctSound.play();
+      } else {
+        wrong++;
+        wrongSound.play();
+      }
+      questionNumber++;
+      document.getElementById("questionCount").innerText = questionNumber;
+      generateQuestion();
+    }
+
     function showResult() {
+      bgMusic.pause();
+      bgMusic.currentTime = 0;
+      finishSound.play();
+
       document.querySelector(".container").classList.add("hidden");
+      document.querySelector(".top-info").classList.add("hidden");
       document.getElementById("resultPopup").classList.remove("hidden");
       document.getElementById("correctCount").innerText = `Benar: ${correct}`;
       document.getElementById("wrongCount").innerText = `Salah: ${wrong}`;
@@ -222,13 +359,14 @@
         alert("Masukkan nama kamu dulu!");
         return;
       }
-
       const scoreData = { name, score: correct };
       let storedScores = JSON.parse(localStorage.getItem("expertscore")) || [];
       storedScores.push(scoreData);
       localStorage.setItem("expertscore", JSON.stringify(storedScores));
-
       startGame();
+      document.querySelector(".container").classList.remove("hidden");
+      document.querySelector(".top-info").classList.remove("hidden");
+      bgMusic.play();
     }
 
     function savescoreAndBack() {
@@ -237,20 +375,16 @@
         alert("Masukkan nama terlebih dahulu!");
         return;
       }
-
       const scoreData = { name, score: correct };
       let storedScores = JSON.parse(localStorage.getItem("expertscore")) || [];
       storedScores.push(scoreData);
       localStorage.setItem("expertscore", JSON.stringify(storedScores));
-
       if (window.history.length > 1) {
         history.go(-1);
       } else {
         window.location.href = "index.html";
       }
     }
-
-    startGame();
   </script>
 </body>
 </html>

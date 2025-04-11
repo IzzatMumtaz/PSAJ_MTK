@@ -7,18 +7,23 @@
     <style>
       @font-face {
         font-family: "SuperMario256";
-        src: url("../fonts/SuperMario256.ttf") format("truetype");
+        src: url('../fonts/Mtk_font-Regular.ttf') format('truetype');
       }
 
       body {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        flex-direction: column;
-        font-family: "SuperMario256", Arial, sans-serif;
-        background-color: #f8f8f8;
-      }
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  flex-direction: column;
+  font-family: "SuperMario256", Arial, sans-serif;
+  background-image: url("../img/MAT-1.-Revisi1png.png");
+  background-size: 100% 500%;
+  background-position: top center;
+  background-repeat: no-repeat;
+  background-color: #f8f8f8;
+}
 
       .info {
   position: absolute;
@@ -43,11 +48,12 @@
       }
 
       #operator {
-        width: 40px;
-        height: 40px;
+        width: 60px;
+        height: 60px;
         display: flex;
         justify-content: center;
         align-items: center;
+        padding: 30px;
       }
       #operator img {
         max-width: 100%;
@@ -55,12 +61,12 @@
       }
 
       .box {
-        width: 60px;
-        height: 60px;
+        width: 100px;
+        height: 100px;
         display: flex;
         justify-content: center;
         align-items: center;
-        font-size: 24px;
+        font-size: 32px;
         font-weight: bold;
         background-image: url("../img/box.png"); /* ganti sesuai path jika perlu */
         background-size: cover;
@@ -70,17 +76,16 @@
       }
 
       .answer-input {
-        width: 200px;
-        height: 60px;
+        width: auto;
+        height: 90px;
         padding: 10px;
-        font-size: 18px;
+        font-size: 32px;
         text-align: center;
-        margin-top: 20px;
+        margin-top: 50px;
         font-family: "SuperMario256", Arial, sans-serif;
         background: url("../img/placeholder.png") no-repeat center;
         background-size: contain;
         color: black;
-
         /* Yang kamu butuhkan */
         border: none;
         outline: none;
@@ -115,8 +120,31 @@
     </style>
   </head>
   <body>
-    <div id="back-container"></div>
 
+    <div id="start-screen" onclick="startFromImage()" >
+  <img src="/img/level1.png" alt="Cara Main" style="
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  cursor: pointer;
+  overflow: hidden;
+" />
+      <!-- Background music dan Game Over sound -->
+<audio id="bg-music" src="/audio/in-game.mp3" loop></audio>
+<audio id="correct-sfx" src="/audio/bnr.mp3"></audio>
+<audio id="wrong-sfx" src="/audio/wrong.mp3"></audio>
+<audio id="gameover-sfx" src="/audio/Game over.mp3"></audio>
+</div>
+
+
+    <div id="back-container"></div>
     <script>
       fetch("../components/back.html")
         .then((response) => response.text())
@@ -125,10 +153,9 @@
         })
         .catch((error) => console.error("Gagal memuat back.html:", error));
     </script>
-
     <div class="info">
-      <p>Counts: <span id="count">01</span></p>
-      <p>Time Left: <span id="timer">01:00</span></p>
+      Soal: <span id="count">1</span> | 
+      Time Left: <span id="timer">01:00</span>
     </div>
 
     <div class="question">
@@ -175,74 +202,62 @@
       let count = 1;
       let correct = 0;
       let wrong = 0;
-      let timeLeft = 5;
+      let timeLeft = 60;
       let interval;
       let num1, num2, correctAnswer, operator;
-
+    
+      const bgMusic = document.getElementById("bg-music");
+      const gameOverSFX = document.getElementById("gameover-sfx");
+    
       function startGame() {
         generateQuestion();
+        clearInterval(interval);
         interval = setInterval(updateTimer, 1000);
       }
+      
+      function startFromImage() {
+  document.getElementById("start-screen").style.display = "none";
+  audio.play().catch(() => {}); // jalanin musik kalau belum mutar
+  startGame();
+}
+    
+    function checkAnswer() {
+      let userAnswer = parseInt(document.getElementById("answer").value);
+      const correctSFX = document.getElementById("correct-sfx");
+      const wrongSFX = document.getElementById("wrong-sfx");
 
-      function saveNameAndRestart() {
-        console.log("Simpan & Main Lagi diklik");
-        const name = document.getElementById("username").value.trim();
-        if (name !== "") {
-          const scoreData = {
-            name: name,
-            score: correct,
-          };
-
-          // Ambil skor lama dari localStorage (kalau ada)
-          let storedScores = JSON.parse(localStorage.getItem("beginnerscore"));
-          if (!Array.isArray(storedScores)) {
-            storedScores = [];
-          }
-
-          // Tambahkan skor baru
-          storedScores.push(scoreData);
-
-          // Simpan kembali ke localStorage
-          localStorage.setItem("beginnerscore", JSON.stringify(storedScores));
-
-          restartGame();
+      if (!isNaN(userAnswer)) {
+        if (userAnswer === correctAnswer) {
+          correct++;
+          correctSFX.currentTime = 0;
+          correctSFX.play();
         } else {
-          alert("Masukkan nama terlebih dahulu!");
+          wrong++;
+          wrongSFX.currentTime = 0;
+          wrongSFX.play();
+        }
+        count++;
+        generateQuestion();
+      }
+    }
+
+    
+      function updateTimer() {
+        timeLeft--;
+        let minutes = Math.floor(timeLeft / 60);
+        let seconds = timeLeft % 60;
+        document.getElementById("timer").innerText = `0${minutes}:${seconds < 10 ? "0" + seconds : seconds}`;
+    
+        if (timeLeft <= 0) {
+          clearInterval(interval);
+          showPopup();
         }
       }
-
-      function savescoreAndBack() {
-        console.log("Simpan & Keluar diklik");
-        const name = document.getElementById("username").value.trim();
-        if (name !== "") {
-          const scoreData = {
-            name: name,
-            score: correct,
-          };
-
-          let storedScores = JSON.parse(localStorage.getItem("beginnerscore"));
-          if (!Array.isArray(storedScores)) {
-            storedScores = [];
-          }
-
-          storedScores.push(scoreData);
-          localStorage.setItem("beginnerscore", JSON.stringify(storedScores));
-
-          if (window.history.length > 1) {
-            history.go(-1);
-          } else {
-            window.location.href = "index.html";
-          }
-        } else {
-          alert("Masukkan nama terlebih dahulu!");
-        }
-      }
-
+    
       function generateQuestion() {
         num1 = Math.floor(Math.random() * 100) + 1;
         num2 = Math.floor(Math.random() * 100) + 1;
-
-        // Randomly choose between addition and subtraction
+    
         if (Math.random() < 0.5) {
           operator = "+";
           correctAnswer = num1 + num2;
@@ -250,57 +265,30 @@
           operator = "-";
           correctAnswer = num1 - num2;
         }
-
+    
         document.getElementById("num1").innerText = num1;
         document.getElementById("num2").innerText = num2;
-        if (operator === "+") {
-          document.getElementById("operator").innerHTML =
-            '<img src="../img/plus.png" alt="plus">';
-        } else {
-          document.getElementById("operator").innerHTML =
-            '<img src="../img/min.png" alt="minus">';
-        }
+        document.getElementById("operator").innerHTML =
+          operator === "+" ? '<img src="../img/plus.png" alt="plus">' : '<img src="../img/min.png" alt="minus">';
         document.getElementById("answer").value = "";
-        document.getElementById("count").innerText =
-          count < 10 ? "0" + count : count;
+        document.getElementById("count").innerText = count < 10 ? "0" + count : count;
       }
-
-      function checkAnswer() {
-        let userAnswer = parseInt(document.getElementById("answer").value);
-        if (!isNaN(userAnswer)) {
-          if (userAnswer === correctAnswer) {
-            correct++;
-          } else {
-            wrong++;
-          }
-          count++;
-          generateQuestion();
-        }
-      }
-
-      function updateTimer() {
-        timeLeft--;
-        let minutes = Math.floor(timeLeft / 60);
-        let seconds = timeLeft % 60;
-        document.getElementById("timer").innerText = `0${minutes}:${
-          seconds < 10 ? "0" + seconds : seconds
-        }`;
-
-        if (timeLeft <= 0) {
-          clearInterval(interval);
-          showPopup();
-        }
-      }
-
+    
       function showPopup() {
+        bgMusic.pause();
+        bgMusic.currentTime = 0;
+    
+        gameOverSFX.currentTime = 0;
+        gameOverSFX.play();
+    
         document.getElementById("totalQuestions").innerText = count - 1;
         document.getElementById("correctAnswers").innerText = correct;
         document.getElementById("wrongAnswers").innerText = wrong;
         document.getElementById("popup").style.display = "block";
-
+    
         document.getElementById("username").value = "";
       }
-
+    
       function restartGame() {
         count = 1;
         correct = 0;
@@ -310,16 +298,54 @@
         document.getElementById("timer").innerText = "01:00";
         startGame();
       }
+    
+      function saveNameAndRestart() {
+        const name = document.getElementById("username").value.trim();
+        if (name !== "") {
+          const scoreData = { name: name, score: correct };
+          let storedScores = JSON.parse(localStorage.getItem("beginnerscore")) || [];
+          storedScores.push(scoreData);
+          localStorage.setItem("beginnerscore", JSON.stringify(storedScores));
+          restartGame();
+        } else {
+          alert("Masukkan nama terlebih dahulu!");
+        }
+      }
+    
+      function savescoreAndBack() {
+        const name = document.getElementById("username").value.trim();
+        if (name !== "") {
+          const scoreData = { name: name, score: correct };
+          let storedScores = JSON.parse(localStorage.getItem("beginnerscore")) || [];
+          storedScores.push(scoreData);
+          localStorage.setItem("beginnerscore", JSON.stringify(storedScores));
+          history.length > 1 ? history.go(-1) : window.location.href = "index.html";
+        } else {
+          alert("Masukkan nama terlebih dahulu!");
+        }
+      }
+    
+      document.getElementById("answer").addEventListener("keypress", function (event) {
+        if (event.key === "Enter") {
+          checkAnswer();
+        }
+      });
 
-      document
-        .getElementById("answer")
-        .addEventListener("keypress", function (event) {
-          if (event.key === "Enter") {
-            checkAnswer();
+      const audio = document.getElementById("bg-music");
+
+      document.addEventListener(
+        "click",
+        function () {
+          if (audio.paused) {
+            audio.play().catch(() => {
+              console.warn("Autoplay diblokir.");
+            });
           }
-        });
+        },
+        { once: true }
+      );
 
-      startGame();
     </script>
+    
   </body>
 </html>
