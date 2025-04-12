@@ -7,38 +7,37 @@
     <style>
       @font-face {
         font-family: "SuperMario256";
-        src: url('../fonts/Mtk_font-Regular.ttf') format('truetype');
+        src: url("../fonts/Mtk_font-Regular.ttf") format("truetype");
       }
 
       body {
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  flex-direction: column;
-  font-family: "SuperMario256", Arial, sans-serif;
-  background-image: url("../img/MAT-1.-Revisi1png.png");
-  background-size: 100% 500%;
-  background-position: top center;
-  background-repeat: no-repeat;
-  background-color: #f8f8f8;
-}
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        flex-direction: column;
+        font-family: "SuperMario256", Arial, sans-serif;
+        background-image: url("../img/MAT-1.-Revisi1png.png");
+        background-size: 100% 500%;
+        background-position: top center;
+        background-repeat: no-repeat;
+        background-color: #f8f8f8;
+      }
 
       .info {
-  position: absolute;
-  top: 20px;
-  right: 30px;
-  font-family: 'SuperMario256', Arial, sans-serif;
-  font-size: 20px;
-  font-weight: bold;
-  color: black;
-  background-color: rgba(255,255,255,0.8);
-  padding: 8px 14px;
-  border-radius: 12px;
-  box-shadow: 0 0 5px rgba(0,0,0,0.1);
-}
-
+        position: absolute;
+        top: 20px;
+        right: 30px;
+        font-family: "SuperMario256", Arial, sans-serif;
+        font-size: 20px;
+        font-weight: bold;
+        color: black;
+        background-color: rgba(255, 255, 255, 0.8);
+        padding: 8px 14px;
+        border-radius: 12px;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+      }
 
       .question {
         display: flex;
@@ -103,8 +102,8 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        background: #B7AEFA;
-        border: 3px  #9486FF solid ;
+        background: #b7aefa;
+        border: 3px #9486ff solid;
         padding: 20px;
         border-radius: 10px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
@@ -113,36 +112,38 @@
 
       .oa {
         border-radius: 10px;
-        font-family: 'SuperMario256', Arial, sans-serif;
-      padding: 8px 20px;
-      margin-top: 10px;
+        font-family: "SuperMario256", Arial, sans-serif;
+        padding: 8px 20px;
+        margin-top: 10px;
       }
     </style>
   </head>
   <body>
-
-    <div id="start-screen" onclick="startFromImage()" >
-  <img src="/img/level1.png" alt="Cara Main" style="
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 1);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-  cursor: pointer;
-  overflow: hidden;
-" />
+    <div id="start-screen" onclick="startFromImage()">
+      <img
+        src="/img/level1-revisi.png"
+        alt="Cara Main"
+        style="
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100vw;
+          height: 100vh;
+          background: rgba(0, 0, 0, 1);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 9999;
+          cursor: pointer;
+          overflow: hidden;
+        "
+      />
       <!-- Background music dan Game Over sound -->
-<audio id="bg-music" src="/audio/in-game.mp3" loop></audio>
-<audio id="correct-sfx" src="/audio/bnr.mp3"></audio>
-<audio id="wrong-sfx" src="/audio/wrong.mp3"></audio>
-<audio id="gameover-sfx" src="/audio/Game over.mp3"></audio>
-</div>
-
+      <audio id="bg-music" src="/audio/in-game.mp3" loop></audio>
+      <audio id="correct-sfx" src="/audio/bnr.mp3"></audio>
+      <audio id="wrong-sfx" src="/audio/wrong.mp3"></audio>
+      <audio id="gameover-sfx" src="/audio/Game over.mp3"></audio>
+    </div>
 
     <div id="back-container"></div>
     <script>
@@ -154,8 +155,7 @@
         .catch((error) => console.error("Gagal memuat back.html:", error));
     </script>
     <div class="info">
-      Soal: <span id="count">1</span> | 
-      Time Left: <span id="timer">01:00</span>
+      Soal: <span id="count">1</span> | Time Left: <span id="timer">01:00</span>
     </div>
 
     <div class="question">
@@ -164,7 +164,13 @@
       <div class="box" id="num2">X</div>
     </div>
 
-    <input type="number" class="answer-input" id="answer" placeholder="Ur answer" autofocus />
+    <input
+      type="number"
+      class="answer-input"
+      id="answer"
+      placeholder="Ur answer"
+      autofocus
+    />
 
     <div class="popup" id="popup">
       <h2>Game Over!</h2>
@@ -172,7 +178,8 @@
       <p>Benar: <span id="correctAnswers">0</span></p>
       <p>Salah: <span id="wrongAnswers">0</span></p>
 
-      <input class="oa"
+      <input
+        class="oa"
         type="text"
         id="username"
         placeholder="Masukkan nama kamu"
@@ -184,13 +191,15 @@
         "
       />
 
-      <button class="oa"
+      <button
+        class="oa"
         onclick="saveNameAndRestart()"
         style="font-family: 'SuperMario256', Arial, sans-serif"
       >
         Simpan dan Main Lagi
       </button>
-      <button class="oa"
+      <button
+        class="oa"
         onclick="savescoreAndBack()"
         style="font-family: 'SuperMario256', Arial, sans-serif"
       >
@@ -205,59 +214,60 @@
       let timeLeft = 60;
       let interval;
       let num1, num2, correctAnswer, operator;
-    
+
       const bgMusic = document.getElementById("bg-music");
       const gameOverSFX = document.getElementById("gameover-sfx");
-    
+
       function startGame() {
         generateQuestion();
         clearInterval(interval);
         interval = setInterval(updateTimer, 1000);
       }
-      
+
       function startFromImage() {
-  document.getElementById("start-screen").style.display = "none";
-  audio.play().catch(() => {}); // jalanin musik kalau belum mutar
-  startGame();
-}
-    
-    function checkAnswer() {
-      let userAnswer = parseInt(document.getElementById("answer").value);
-      const correctSFX = document.getElementById("correct-sfx");
-      const wrongSFX = document.getElementById("wrong-sfx");
-
-      if (!isNaN(userAnswer)) {
-        if (userAnswer === correctAnswer) {
-          correct++;
-          correctSFX.currentTime = 0;
-          correctSFX.play();
-        } else {
-          wrong++;
-          wrongSFX.currentTime = 0;
-          wrongSFX.play();
-        }
-        count++;
-        generateQuestion();
+        document.getElementById("start-screen").style.display = "none";
+        audio.play().catch(() => {}); // jalanin musik kalau belum mutar
+        startGame();
       }
-    }
 
-    
+      function checkAnswer() {
+        let userAnswer = parseInt(document.getElementById("answer").value);
+        const correctSFX = document.getElementById("correct-sfx");
+        const wrongSFX = document.getElementById("wrong-sfx");
+
+        if (!isNaN(userAnswer)) {
+          if (userAnswer === correctAnswer) {
+            correct++;
+            correctSFX.currentTime = 0;
+            correctSFX.play();
+          } else {
+            wrong++;
+            wrongSFX.currentTime = 0;
+            wrongSFX.play();
+          }
+          count++;
+          generateQuestion();
+        }
+      }
+
       function updateTimer() {
         timeLeft--;
         let minutes = Math.floor(timeLeft / 60);
         let seconds = timeLeft % 60;
-        document.getElementById("timer").innerText = `0${minutes}:${seconds < 10 ? "0" + seconds : seconds}`;
-    
+        document.getElementById("timer").innerText = `0${minutes}:${
+          seconds < 10 ? "0" + seconds : seconds
+        }`;
+
         if (timeLeft <= 0) {
           clearInterval(interval);
           showPopup();
         }
       }
-    
+
       function generateQuestion() {
         num1 = Math.floor(Math.random() * 100) + 1;
         num2 = Math.floor(Math.random() * 100) + 1;
-    
+
         if (Math.random() < 0.5) {
           operator = "+";
           correctAnswer = num1 + num2;
@@ -265,30 +275,33 @@
           operator = "-";
           correctAnswer = num1 - num2;
         }
-    
+
         document.getElementById("num1").innerText = num1;
         document.getElementById("num2").innerText = num2;
         document.getElementById("operator").innerHTML =
-          operator === "+" ? '<img src="../img/plus.png" alt="plus">' : '<img src="../img/min.png" alt="minus">';
+          operator === "+"
+            ? '<img src="../img/plus.png" alt="plus">'
+            : '<img src="../img/min.png" alt="minus">';
         document.getElementById("answer").value = "";
-        document.getElementById("count").innerText = count < 10 ? "0" + count : count;
+        document.getElementById("count").innerText =
+          count < 10 ? "0" + count : count;
       }
-    
+
       function showPopup() {
         bgMusic.pause();
         bgMusic.currentTime = 0;
-    
+
         gameOverSFX.currentTime = 0;
         gameOverSFX.play();
-    
+
         document.getElementById("totalQuestions").innerText = count - 1;
         document.getElementById("correctAnswers").innerText = correct;
         document.getElementById("wrongAnswers").innerText = wrong;
         document.getElementById("popup").style.display = "block";
-    
+
         document.getElementById("username").value = "";
       }
-    
+
       function restartGame() {
         count = 1;
         correct = 0;
@@ -298,12 +311,13 @@
         document.getElementById("timer").innerText = "01:00";
         startGame();
       }
-    
+
       function saveNameAndRestart() {
         const name = document.getElementById("username").value.trim();
         if (name !== "") {
           const scoreData = { name: name, score: correct };
-          let storedScores = JSON.parse(localStorage.getItem("beginnerscore")) || [];
+          let storedScores =
+            JSON.parse(localStorage.getItem("beginnerscore")) || [];
           storedScores.push(scoreData);
           localStorage.setItem("beginnerscore", JSON.stringify(storedScores));
           restartGame();
@@ -311,25 +325,30 @@
           alert("Masukkan nama terlebih dahulu!");
         }
       }
-    
+
       function savescoreAndBack() {
         const name = document.getElementById("username").value.trim();
         if (name !== "") {
           const scoreData = { name: name, score: correct };
-          let storedScores = JSON.parse(localStorage.getItem("beginnerscore")) || [];
+          let storedScores =
+            JSON.parse(localStorage.getItem("beginnerscore")) || [];
           storedScores.push(scoreData);
           localStorage.setItem("beginnerscore", JSON.stringify(storedScores));
-          history.length > 1 ? history.go(-1) : window.location.href = "index.html";
+          history.length > 1
+            ? history.go(-1)
+            : (window.location.href = "index.html");
         } else {
           alert("Masukkan nama terlebih dahulu!");
         }
       }
-    
-      document.getElementById("answer").addEventListener("keypress", function (event) {
-        if (event.key === "Enter") {
-          checkAnswer();
-        }
-      });
+
+      document
+        .getElementById("answer")
+        .addEventListener("keypress", function (event) {
+          if (event.key === "Enter") {
+            checkAnswer();
+          }
+        });
 
       const audio = document.getElementById("bg-music");
 
@@ -344,8 +363,6 @@
         },
         { once: true }
       );
-
     </script>
-    
   </body>
 </html>

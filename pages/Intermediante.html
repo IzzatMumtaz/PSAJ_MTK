@@ -1,287 +1,344 @@
 <!DOCTYPE html>
 <html lang="id">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Game Tebak Angka - Intermediate</title>
-  <style>
-    @font-face {
-      font-family: 'SuperMario256';
-      src: url('../fonts/Mtk_font-Regular.ttf') format('truetype');
-    }
-
-    body {
-      font-family: 'SuperMario256', Arial, sans-serif;
-      text-align: center;
-      margin: 0;
-      padding: 0;
-      background-color: #f8f8f8;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      background-image: url("../img/MAT-1.-Revisi1png.png");
-      background-size: 100% 500%;
-  background-position: 0% 25%;
-  background-repeat: no-repeat;
-  background-color: #f8f8f8;
-    }
-
-    .timer {
-      position: absolute;
-      top: 20px;
-      right: 30px;
-      font-family: 'SuperMario256', Arial, sans-serif;
-      font-size: 20px;
-      font-weight: bold;
-      color: black;
-      background-color: rgba(255,255,255,0.8);
-      padding: 8px 14px;
-      border-radius: 12px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
-    }
-
-    .container {
-      width: 400px;
-      padding: 20px;
-      border: 2px solid #9486FF;
-      border-radius: 10px;
-      background-color: #B7AEFA;
-      display: none;
-    }
-
-    .popup {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: #B7AEFA;
-      border: 3px #9486FF solid;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-      text-align: center;
-      z-index: 999;
-    }
-
-    .oa {
-      border-radius: 10px;
-      font-family: 'SuperMario256', Arial, sans-serif;
-      padding: 8px 20px;
-      margin-top: 10px;
-    }
-
-    #startScreen img {
-      width: 200px;
-      cursor: pointer;
-    }
-  </style>
-</head>
-<body>
-
-  <!-- Tombol Start -->
-  <div id="startScreen">
-    <img src="../img/level2.png" alt="Mulai Game" onclick="startGameWithMusic()" style="
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 1);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-    cursor: pointer;
-    overflow: hidden;
-  "/>
-  </div>
-
-  <!-- Back Button -->
-  <div id="back-container"></div>
-  <script>
-    fetch("../components/back.html")
-      .then(response => response.text())
-      .then(html => {
-        document.getElementById("back-container").innerHTML = html;
-      })
-      .catch(error => console.error("Gagal memuat back.html:", error));
-  </script>
-
-  <!-- Timer -->
-  <div class="timer">
-    <span id="questionCount">Soal: 1</span> |
-    <span id="timer">Time Left: 01:00</span>
-  </div>
-
-  <!-- Game Container -->
-  <div class="container">
-    <h2 id="question">Soal akan muncul di sini</h2>
-    <input class="oa" type="number" id="answer" placeholder="Masukkan jawaban" />
-  </div>
-
-  <!-- Popup Hasil -->
-  <div class="popup" id="resultPopup">
-    <h2>Game Over!</h2>
-    <p>Total Soal: <span id="totalQuestions">0</span></p>
-    <p>Benar: <span id="correctCount">0</span></p>
-    <p>Salah: <span id="wrongCount">0</span></p>
-    <input
-      type="text"
-      id="username"
-      placeholder="Masukkan nama kamu"
-      style="font-family: 'SuperMario256', Arial, sans-serif; margin-bottom: 10px; padding: 8px; width: 80%;"
-    />
-    <br/>
-    <button class="oa" onclick="saveNameAndRestart()">Simpan dan Main Lagi</button>
-    <button class="oa" onclick="savescoreAndBack()">Simpan dan Keluar</button>
-  </div>
-
-  <!-- Audio Elements -->
-  <audio id="bgMusic" loop>
-    <source src="../audio/In-game.mp3" type="audio/mpeg" />
-  </audio>
-  <audio id="correctSound">
-    <source src="../audio/bnr.mp3" type="audio/mpeg" />
-  </audio>
-  <audio id="wrongSound">
-    <source src="../audio/wrong.mp3" type="audio/mpeg" />
-  </audio>
-  <audio id="gameOverSound">
-    <source src="../audio/Game over.mp3" type="audio/mpeg" />
-  </audio>
-
-  <!-- Script Game -->
-  <script>
-    const bgMusic = document.getElementById("bgMusic");
-    const correctSound = document.getElementById("correctSound");
-    const wrongSound = document.getElementById("wrongSound");
-    const gameOverSound = document.getElementById("gameOverSound");
-
-    let timer = 60;
-    let correct = 0;
-    let wrong = 0;
-    let interval;
-    let currentQuestion;
-    let answer;
-    let questionCount = 1;
-    let missingIndex;
-
-    function startGameWithMusic() {
-      document.getElementById("startScreen").style.display = "none";
-      startGame();
-      bgMusic.play().catch(err => console.log("Autoplay diblokir:", err));
-    }
-
-    function startGame() {
-      correct = 0;
-      wrong = 0;
-      timer = 60;
-      questionCount = 1;
-      document.getElementById("resultPopup").style.display = "none";
-      document.querySelector(".container").style.display = "block";
-      startTimer();
-      generateQuestion();
-    }
-
-    function startTimer() {
-      interval = setInterval(() => {
-        timer--;
-        document.getElementById("timer").innerText = `Time Left: 00:${timer < 10 ? '0' + timer : timer}`;
-        if (timer <= 0) {
-          clearInterval(interval);
-          showResult();
-        }
-      }, 1000);
-    }
-
-    function generateQuestion() {
-      let base = Math.floor(Math.random() * 5) + 1;
-      let step = Math.floor(Math.random() * 5) + 2;
-      let sequence = [base, base + step, base + 2 * step, base + 3 * step, base + 4 * step];
-      missingIndex = Math.floor(Math.random() * 4) + 1;
-      answer = sequence[missingIndex];
-      sequence[missingIndex] = "?";
-      currentQuestion = sequence.join(", ");
-      document.getElementById("question").innerText = currentQuestion;
-      document.getElementById("questionCount").innerText = `Soal: ${questionCount}`;
-    }
-
-    document.getElementById("answer").addEventListener("keyup", function (event) {
-      if (event.key === "Enter") {
-        submitAnswer();
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Game Tebak Angka - Intermediate</title>
+    <style>
+      @font-face {
+        font-family: "SuperMario256";
+        src: url("../fonts/Mtk_font-Regular.ttf") format("truetype");
       }
-    });
 
-    function submitAnswer() {
-      let userAnswer = parseInt(document.getElementById("answer").value);
-      if (!isNaN(userAnswer)) {
-        if (userAnswer === answer) {
-          correct++;
-          correctSound.play();
-        } else {
-          wrong++;
-          wrongSound.play();
-        }
-        document.getElementById("answer").value = "";
-        questionCount++;
+      body {
+        font-family: "SuperMario256", Arial, sans-serif;
+        text-align: center;
+        margin: 0;
+        padding: 0;
+        background-color: #f8f8f8;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        background-image: url("../img/MAT-1.-Revisi1png.png");
+        background-size: 100% 500%;
+        background-position: 0% 25%;
+        background-repeat: no-repeat;
+        background-color: #f8f8f8;
+      }
+
+      .timer {
+        position: absolute;
+        top: 20px;
+        right: 30px;
+        font-family: "SuperMario256", Arial, sans-serif;
+        font-size: 20px;
+        font-weight: bold;
+        color: black;
+        background-color: rgba(255, 255, 255, 0.8);
+        padding: 8px 14px;
+        border-radius: 12px;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+      }
+      .container {
+        width: 600px;
+        height: auto;
+        padding: 40px 20px;
+        background-image: url("../img/placeholder.png");
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        display: none;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .popup {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #b7aefa;
+        border: 3px #9486ff solid;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        z-index: 999;
+      }
+
+      .oa {
+        border-radius: 10px;
+        font-family: "SuperMario256", Arial, sans-serif;
+        padding: 8px 20px;
+        margin-top: 10px;
+      }
+
+      .oa1 {
+        border-radius: 10px;
+        font-family: "SuperMario256", Arial, sans-serif;
+        padding: 12px 20px;
+        font-size: large;
+        margin-top: 10px;
+        border: none;
+        outline: none;
+        -moz-appearance: textfield;
+      }
+      .oa1::-webkit-outer-spin-button,
+      .oa1::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+
+      #startScreen img {
+        width: 200px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Tombol Start -->
+    <div id="startScreen">
+      <img
+        src="../img/level2-revisi.png"
+        alt="Mulai Game"
+        onclick="startGameWithMusic()"
+        style="
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100vw;
+          height: 100vh;
+          background: rgba(0, 0, 0, 1);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 9999;
+          cursor: pointer;
+          overflow: hidden;
+        "
+      />
+    </div>
+
+    <!-- Back Button -->
+    <div id="back-container"></div>
+    <script>
+      fetch("../components/back.html")
+        .then((response) => response.text())
+        .then((html) => {
+          document.getElementById("back-container").innerHTML = html;
+        })
+        .catch((error) => console.error("Gagal memuat back.html:", error));
+    </script>
+
+    <!-- Timer -->
+    <div class="timer">
+      <span id="questionCount">Soal: 1</span> |
+      <span id="timer">Time Left: 01:00</span>
+    </div>
+
+    <!-- Game Container -->
+    <div class="container">
+      <h2 id="question">Soal akan muncul di sini</h2>
+      <input
+        class="oa1"
+        type="number"
+        id="answer"
+        placeholder="Masukkan jawaban"
+      />
+    </div>
+
+    <!-- Popup Hasil -->
+    <div class="popup" id="resultPopup">
+      <h2>Game Over!</h2>
+      <p>Total Soal: <span id="totalQuestions">0</span></p>
+      <p>Benar: <span id="correctCount">0</span></p>
+      <p>Salah: <span id="wrongCount">0</span></p>
+      <input
+        type="text"
+        id="username"
+        placeholder="Masukkan nama kamu"
+        style="
+          font-family: 'SuperMario256', Arial, sans-serif;
+          margin-bottom: 10px;
+          padding: 8px;
+          width: 80%;
+        "
+      />
+      <br />
+      <button class="oa" onclick="saveNameAndRestart()">
+        Simpan dan Main Lagi
+      </button>
+      <button class="oa" onclick="savescoreAndBack()">Simpan dan Keluar</button>
+    </div>
+
+    <!-- Audio Elements -->
+    <audio id="bgMusic" loop>
+      <source src="../audio/In-game.mp3" type="audio/mpeg" />
+    </audio>
+    <audio id="correctSound">
+      <source src="../audio/bnr.mp3" type="audio/mpeg" />
+    </audio>
+    <audio id="wrongSound">
+      <source src="../audio/wrong.mp3" type="audio/mpeg" />
+    </audio>
+    <audio id="gameOverSound">
+      <source src="../audio/Game over.mp3" type="audio/mpeg" />
+    </audio>
+
+    <!-- Script Game -->
+    <script>
+      const bgMusic = document.getElementById("bgMusic");
+      const correctSound = document.getElementById("correctSound");
+      const wrongSound = document.getElementById("wrongSound");
+      const gameOverSound = document.getElementById("gameOverSound");
+
+      let timer = 60;
+      let correct = 0;
+      let wrong = 0;
+      let interval;
+      let currentQuestion;
+      let answer;
+      let questionCount = 1;
+      let missingIndex;
+
+      function startGameWithMusic() {
+        document.getElementById("startScreen").style.display = "none";
+        startGame();
+        bgMusic.play().catch((err) => console.log("Autoplay diblokir:", err));
+      }
+
+      function startGame() {
+        correct = 0;
+        wrong = 0;
+        timer = 60;
+        questionCount = 1;
+        document.getElementById("resultPopup").style.display = "none";
+        document.querySelector(".container").style.display = "block";
+        startTimer();
         generateQuestion();
       }
-    }
 
-    function showResult() {
-      bgMusic.pause();
-      bgMusic.currentTime = 0;
-      gameOverSound.play();
-
-      document.querySelector(".container").style.display = "none";
-      document.getElementById("resultPopup").style.display = "block";
-      document.getElementById("totalQuestions").innerText = questionCount - 1;
-      document.getElementById("correctCount").innerText = correct;
-      document.getElementById("wrongCount").innerText = wrong;
-      document.getElementById("username").value = "";
-    }
-
-    function saveNameAndRestart() {
-      const name = document.getElementById("username").value.trim();
-      if (name !== "") {
-        const scoreData = { name, score: correct };
-        let storedScores = JSON.parse(localStorage.getItem("intermediantescore")) || [];
-        storedScores.push(scoreData);
-        localStorage.setItem("intermediantescore", JSON.stringify(storedScores));
-        restartGame();
-      } else {
-        alert("Masukkan nama terlebih dahulu!");
+      function startTimer() {
+        interval = setInterval(() => {
+          timer--;
+          document.getElementById("timer").innerText = `Time Left: 00:${
+            timer < 10 ? "0" + timer : timer
+          }`;
+          if (timer <= 0) {
+            clearInterval(interval);
+            showResult();
+          }
+        }, 1000);
       }
-    }
 
-    function savescoreAndBack() {
-      const name = document.getElementById("username").value.trim();
-      if (name !== "") {
-        const scoreData = { name, score: correct };
-        let storedScores = JSON.parse(localStorage.getItem("intermediantescore")) || [];
-        storedScores.push(scoreData);
-        localStorage.setItem("intermediantescore", JSON.stringify(storedScores));
-        if (window.history.length > 1) {
-          history.go(-1);
-        } else {
-          window.location.href = "index.html";
+      function generateQuestion() {
+        let base = Math.floor(Math.random() * 5) + 1;
+        let step = Math.floor(Math.random() * 5) + 2;
+        let sequence = [
+          base,
+          base + step,
+          base + 2 * step,
+          base + 3 * step,
+          base + 4 * step,
+        ];
+        missingIndex = Math.floor(Math.random() * 4) + 1;
+        answer = sequence[missingIndex];
+        sequence[missingIndex] = "?";
+        currentQuestion = sequence.join(", ");
+        document.getElementById("question").innerText = currentQuestion;
+        document.getElementById(
+          "questionCount"
+        ).innerText = `Soal: ${questionCount}`;
+      }
+
+      document
+        .getElementById("answer")
+        .addEventListener("keyup", function (event) {
+          if (event.key === "Enter") {
+            submitAnswer();
+          }
+        });
+
+      function submitAnswer() {
+        let userAnswer = parseInt(document.getElementById("answer").value);
+        if (!isNaN(userAnswer)) {
+          if (userAnswer === answer) {
+            correct++;
+            correctSound.play();
+          } else {
+            wrong++;
+            wrongSound.play();
+          }
+          document.getElementById("answer").value = "";
+          questionCount++;
+          generateQuestion();
         }
-      } else {
-        alert("Masukkan nama terlebih dahulu!");
       }
-    }
 
-    function restartGame() {
-      questionCount = 1;
-      correct = 0;
-      wrong = 0;
-      timer = 60;
-      document.getElementById("timer").innerText = "Time Left: 01:00";
-      startGame();
-    }
-  </script>
-</body>
+      function showResult() {
+        bgMusic.pause();
+        bgMusic.currentTime = 0;
+        gameOverSound.play();
+
+        document.querySelector(".container").style.display = "none";
+        document.getElementById("resultPopup").style.display = "block";
+        document.getElementById("totalQuestions").innerText = questionCount - 1;
+        document.getElementById("correctCount").innerText = correct;
+        document.getElementById("wrongCount").innerText = wrong;
+        document.getElementById("username").value = "";
+      }
+
+      function saveNameAndRestart() {
+        const name = document.getElementById("username").value.trim();
+        if (name !== "") {
+          const scoreData = { name, score: correct };
+          let storedScores =
+            JSON.parse(localStorage.getItem("intermediantescore")) || [];
+          storedScores.push(scoreData);
+          localStorage.setItem(
+            "intermediantescore",
+            JSON.stringify(storedScores)
+          );
+          restartGame();
+        } else {
+          alert("Masukkan nama terlebih dahulu!");
+        }
+      }
+
+      function savescoreAndBack() {
+        const name = document.getElementById("username").value.trim();
+        if (name !== "") {
+          const scoreData = { name, score: correct };
+          let storedScores =
+            JSON.parse(localStorage.getItem("intermediantescore")) || [];
+          storedScores.push(scoreData);
+          localStorage.setItem(
+            "intermediantescore",
+            JSON.stringify(storedScores)
+          );
+          if (window.history.length > 1) {
+            history.go(-1);
+          } else {
+            window.location.href = "index.html";
+          }
+        } else {
+          alert("Masukkan nama terlebih dahulu!");
+        }
+      }
+
+      function restartGame() {
+        questionCount = 1;
+        correct = 0;
+        wrong = 0;
+        timer = 60;
+        document.getElementById("timer").innerText = "Time Left: 01:00";
+        startGame();
+      }
+    </script>
+  </body>
 </html>

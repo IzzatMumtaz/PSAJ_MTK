@@ -52,9 +52,56 @@
       background-color: #9486FF;
 
     }
+    .a {
+      border-radius: 5px;
+      border: none;
+        outline: none;
+        cursor: pointer;
+    }
+    span {
+      color: red;
+      text-decoration: underline;
+    }
+
+    /* Animasi membesar dan mengecil */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* Animasi getar ke kiri-kanan dan atas-bawah secara looping */
+@keyframes shake {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-2px, -2px); }
+  20% { transform: translate(2px, 2px); }
+  30% { transform: translate(-2px, 2px); }
+  40% { transform: translate(2px, -2px); }
+  50% { transform: translate(-1px, 1px); }
+  60% { transform: translate(1px, -1px); }
+  70% { transform: translate(-1px, -1px); }
+  80% { transform: translate(1px, 1px); }
+  90% { transform: translate(0, -2px); }
+}
+
+
+/* Terapkan animasi ke span "TOP 10" */
+h1 span {
+  animation: pulse 1.5s infinite;
+  display: inline-block;
+}
+
+/* Dropdown saat hover: border biru + animasi getar */
+select.a:hover {
+  border: 3px solid #9486FF;
+  animation: shake 3s infinite;
+}
+
+
   </style>
 </head>
 <body>
+
     <div id="back-container"></div>
 
     <script>
@@ -67,14 +114,15 @@
     </script>
 
 
-  <h1>Matematika PSAJ’s Leaderboard</h1>
+  <h1><span>TOP 10</span> Math Rush
+    Leaderboard</h1>
 
   <label for="levelFilter">Game Level Filter</label>
-  <select id="levelFilter" onchange="filterTable()">
-    <option value="All">Random</option>
-    <option value="Beginner">Beginner</option>
-    <option value="Intermediate">Intermediate</option>
-    <option value="Expert">Expert</option>
+  <select class="a" id="levelFilter" onchange="filterTable()">
+    <option value="All">Semua</option>
+    <option value="Hitung Cepat">Hitung Cepat</option>
+    <option value="Teka-Teki Pola">Teka-Teki Pola</option>
+    <option value="Pecahan & Persentase">Pecahan & Persentase</option>
   </select>
 
   <table>
@@ -104,19 +152,19 @@
     function filterTable() {
       const selected = document.getElementById("levelFilter").value;
   
-      const beginner = getStoredScores("beginnerscore", "Beginner");
-      const intermediate = getStoredScores("intermediantescore", "Intermediate");
-      const expert = getStoredScores("expertscore", "Expert");
+      const beginner = getStoredScores("beginnerscore", "Hitung Cepat");
+      const intermediate = getStoredScores("intermediantescore", "Teka-Teki Pola");
+      const expert = getStoredScores("expertscore", "Pecahan & Persentase");
   
       let combined = [];
   
       if (selected === "All") {
         combined = [...beginner, ...intermediate, ...expert];
-      } else if (selected === "Beginner") {
+      } else if (selected === "Hitung Cepat") {
         combined = beginner;
-      } else if (selected === "Intermediate") {
+      } else if (selected === "Teka-Teki Pola") {
         combined = intermediate;
-      } else if (selected === "Expert") {
+      } else if (selected === "Pecahan & Persentase") {
         combined = expert;
       }
   
